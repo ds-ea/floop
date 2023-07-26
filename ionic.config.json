@@ -1,0 +1,7 @@
+{
+  "name": "floop",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
