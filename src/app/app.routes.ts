@@ -1,13 +1,10 @@
 import { Routes } from '@angular/router';
+import { FloopView } from './floop/floop/floop.view';
 
-export const routes: Routes = [
-  {
-    path: 'home',
-    loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
-  },
-  {
-    path: '',
-    redirectTo: 'home',
-    pathMatch: 'full',
-  },
+
+export const routes:Routes = [
+	{
+		path: '',
+		component: FloopView,
+	},
 ];

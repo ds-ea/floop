@@ -36,8 +36,12 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/theme/variables.scss", "src/global.scss"],
-            "scripts": []
+			"styles": ["src/theme/ionic/variables.scss", "src/theme/ionic/global.scss", "src/theme/floop/floop.scss"],
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "tone",
+			  "automation-events"
+            ]
           },
           "configurations": {
             "production": {
@@ -82,7 +86,8 @@
               "browserTarget": "app:build:production"
             },
             "development": {
-              "browserTarget": "app:build:development"
+              "browserTarget": "app:build:development",
+              "port": 60808
             },
             "ci": {
               "progress": false
@@ -116,7 +121,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/theme/variables.scss", "src/global.scss"],
+			"styles": ["src/theme/ionic/variables.scss", "src/theme/ionic/global.scss", "src/theme/floop/floop.scss"],
             "scripts": []
           },
           "configurations": {
@@ -136,7 +141,10 @@
     }
   },
   "cli": {
-    "schematicCollections": ["@ionic/angular-toolkit"]
+    "schematicCollections": [
+      "@ionic/angular-toolkit"
+    ],
+    "analytics": false
   },
   "schematics": {
     "@ionic/angular-toolkit:component": {

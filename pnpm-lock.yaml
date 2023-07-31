@@ -29,6 +29,9 @@ dependencies:
   '@angular/router':
     specifier: ^16.0.0
     version: 16.1.7(@angular/common@16.1.7)(@angular/core@16.1.7)(@angular/platform-browser@16.1.7)(rxjs@7.8.1)
+  '@capacitor-community/native-audio':
+    specifier: ^5.0.1
+    version: 5.0.1(@capacitor/core@5.2.2)
   '@capacitor/app':
     specifier: 5.0.6
     version: 5.0.6(@capacitor/core@5.2.2)
@@ -38,6 +41,9 @@ dependencies:
   '@capacitor/haptics':
     specifier: 5.0.6
     version: 5.0.6(@capacitor/core@5.2.2)
+  '@capacitor/ios':
+    specifier: 5.2.2
+    version: 5.2.2(@capacitor/core@5.2.2)
   '@capacitor/keyboard':
     specifier: 5.0.6
     version: 5.0.6(@capacitor/core@5.2.2)
@@ -53,6 +59,9 @@ dependencies:
   rxjs:
     specifier: ~7.8.0
     version: 7.8.1
+  tone:
+    specifier: ^14.8.49
+    version: 14.8.49
   tslib:
     specifier: ^2.3.0
     version: 2.6.1
@@ -118,6 +127,9 @@ devDependencies:
   eslint-plugin-prefer-arrow:
     specifier: 1.2.2
     version: 1.2.2(eslint@7.32.0)
+  include-media:
+    specifier: ^2.0.0
+    version: 2.0.0
   jasmine-core:
     specifier: ~4.6.0
     version: 4.6.0
@@ -1876,6 +1888,13 @@ packages:
       regenerator-runtime: 0.13.11
     dev: true
 
+  /@babel/runtime@7.22.6:
+    resolution: {integrity: sha512-wDb5pWm4WDdF6LFUde3Jl8WzPA+3ZbxYqkC6xAXuD3irdEHN1k0NfTRrJD8ZD378SJ61miMLCqIOXYhd8x+AJQ==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      regenerator-runtime: 0.13.11
+    dev: false
+
   /@babel/template@7.22.5:
     resolution: {integrity: sha512-X7yV7eiwAxdj9k94NEylvbVHLiVG1nvzCV2EAowhxLTwODV1jl9UzZ48leOC0sH7OnuHrIkllaBgneUykIcZaw==}
     engines: {node: '>=6.9.0'}
@@ -1911,6 +1930,14 @@ packages:
       '@babel/helper-validator-identifier': 7.22.5
       to-fast-properties: 2.0.0
     dev: true
+
+  /@capacitor-community/native-audio@5.0.1(@capacitor/core@5.2.2):
+    resolution: {integrity: sha512-dqfjofwSg2MJXE/ADFLF/D/bCHLYCMUanwZi8pXJKN0PVkDXoAfUSAkyHCs1L1dNygfU4qbr+9NMrXBiQ9jdtQ==}
+    peerDependencies:
+      '@capacitor/core': ^5.0.0
+    dependencies:
+      '@capacitor/core': 5.2.2
+    dev: false
 
   /@capacitor/app@5.0.6(@capacitor/core@5.2.2):
     resolution: {integrity: sha512-6ZXVdnNmaYILasC/RjQw+yfTmq2ZO7Q3v5lFcDVfq3PFGnybyYQh+RstBrYri+376OmXOXxBD7E6UxBhrMzXGA==}
@@ -1956,6 +1983,14 @@ packages:
     resolution: {integrity: sha512-UrMcR7p2X10ql4VLlowUuH/VckTeu0lj+RQpekxox14uxDmu5AGIFDK/iDTi8W6QZkxTJRZK6sbCjgwYgNJ7Pw==}
     peerDependencies:
       '@capacitor/core': ^5.0.0
+    dependencies:
+      '@capacitor/core': 5.2.2
+    dev: false
+
+  /@capacitor/ios@5.2.2(@capacitor/core@5.2.2):
+    resolution: {integrity: sha512-6nNhB+G9tamJFMdvPOIATEPIXlh3GNXMq8eeY3xrFO72bBTmQpXdbDQmMJeBbpVlkEnFoVUXiSxAu6O0E9x9Lw==}
+    peerDependencies:
+      '@capacitor/core': ^5.2.0
     dependencies:
       '@capacitor/core': 5.2.2
     dev: false
@@ -3528,6 +3563,14 @@ packages:
     resolution: {integrity: sha512-+q/t7Ekv1EDY2l6Gda6LLiX14rU9TV20Wa3ofeQmwPFZbOMo9DXrLbOjFaaclkXKWidIaopwAObQDqwWtGUjqg==}
     engines: {node: '>= 4.0.0'}
     dev: true
+
+  /automation-events@6.0.7:
+    resolution: {integrity: sha512-praCfxsKCU3v69+vKnUhyXfvHaVmK/ng8Slzl95U2FAOeLCz+qA3VXGpB6jlHuwrGNvTl9sx5E9942feZ4ISXw==}
+    engines: {node: '>=16.1.0'}
+    dependencies:
+      '@babel/runtime': 7.22.6
+      tslib: 2.6.1
+    dev: false
 
   /autoprefixer@10.4.14(postcss@8.4.24):
     resolution: {integrity: sha512-FQzyfOsTlwVzjHxKEqRIAdJx9niO6VCBCoEwax/VLSoQF29ggECcPuBqUMZ+u8jCZOPSy8b8/8KnuFbp0SaFZQ==}
@@ -5729,6 +5772,10 @@ packages:
     engines: {node: '>=0.8.19'}
     dev: true
 
+  /include-media@2.0.0:
+    resolution: {integrity: sha512-LSJcffPYIZ/Kln0rIi5UhqQbZxElDCMYA4dPC5MI1rkwwjptgEiOicHnzB0MMhMNJver0+4zULb4MKlgDyapZg==}
+    dev: true
+
   /indent-string@4.0.0:
     resolution: {integrity: sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==}
     engines: {node: '>=8'}
@@ -7737,7 +7784,6 @@ packages:
 
   /regenerator-runtime@0.13.11:
     resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
-    dev: true
 
   /regenerator-transform@0.15.1:
     resolution: {integrity: sha512-knzmNAcuyxV+gQCufkYcvOqX/qIIfHLv0u5x79kRxuGojfYVky1f15TzZEu2Avte8QGepvUNTnLskf8E6X6Vyg==}
@@ -8349,6 +8395,14 @@ packages:
       minipass: 5.0.0
     dev: true
 
+  /standardized-audio-context@25.3.54:
+    resolution: {integrity: sha512-1b5YTivCBc52MFlg3yUFdbfQZBb4wyFUjbvzBn6JD1FJM1nd3RTg3ddyGWRT8XVOC0KUwY2h4R9YrqLpQ04JPQ==}
+    dependencies:
+      '@babel/runtime': 7.22.6
+      automation-events: 6.0.7
+      tslib: 2.6.1
+    dev: false
+
   /statuses@1.5.0:
     resolution: {integrity: sha512-OpZ3zP+jT1PI7I8nemJX4AKmAX070ZkYPVWV/AaKTJl+tXCTGyVdC1a4SL8RUQYEwk/f34ZX8UTykN68FwrqAA==}
     engines: {node: '>= 0.6'}
@@ -8634,6 +8688,13 @@ packages:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
     dev: true
+
+  /tone@14.8.49:
+    resolution: {integrity: sha512-L5YLleEFvkuBYQ83eEL0Fg5DSQS7B28v32sYejnnl8b9yXSytM1X/jNJM1DrB525JGwFb5Pmq5OYZPD9oYQbCQ==}
+    dependencies:
+      standardized-audio-context: 25.3.54
+      tslib: 2.6.1
+    dev: false
 
   /tree-kill@1.2.2:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}

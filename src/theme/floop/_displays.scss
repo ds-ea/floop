@@ -1,0 +1,116 @@
+
+.floop-display {
+	position: relative;
+	user-select: none;
+
+	flex: 0 0 auto;
+
+	border-radius: var(--flp-display-radius);
+	background-color: var(--flp-display-bg);
+	box-shadow: var(--flp-display-shadow);
+
+
+	+ .floop-display{
+		margin-block-start: var(--flp-display-gap);
+	}
+
+	&.control{
+		aspect-ratio: 1.55;
+	}
+
+	&.sequencer{
+		aspect-ratio: 1/1;
+	}
+
+
+	.retro{
+		position: absolute;
+		z-index: 100;
+		inset: var(--flp-display-panel-gap);
+
+		pointer-events: none;
+
+		mix-blend-mode: soft-light; // overlay;
+
+
+		$bg: transparent;
+		$fg: #000;
+		$size: 1.25%;
+
+		opacity: .2;
+
+		background-color: $bg;
+		background-image:  linear-gradient($fg 0.6000000000000001px, transparent 0.6000000000000001px), linear-gradient(to right, $fg 0.6000000000000001px, $bg 0.6000000000000001px);
+		background-size: $size $size;
+
+		&::before{
+			content:'';
+			display: block;
+			inset: 0;
+			position: absolute;
+			margin-left: 1px;
+			margin-top: 1px;
+
+			background-color: $bg;
+			opacity: .8;
+			background-image:  linear-gradient($fg 0.6000000000000001px, transparent 0.6000000000000001px), linear-gradient(to right, $fg 0.6000000000000001px, $bg 0.6000000000000001px);
+			background-size: $size $size;
+		}
+	}
+
+	.panel{
+		position: relative;
+		z-index: 10;
+		border-radius: var(--flp-display-radius);
+		overflow: hidden;
+
+		width: 100%;
+		height: 100%;
+
+		padding: var(--flp-display-panel-gap);
+
+		display: grid;
+		grid-template-columns: repeat(6, 1fr);
+		grid-template-rows:  repeat(6, 1fr);
+
+		grid-gap: 5px;
+		flex-flow: wrap-reverse;
+
+	}
+
+	.btn{
+		position: relative;
+
+		aspect-ratio: 1/1;
+
+		background-color: #fff;
+		border: 1px solid var(--flp-display-bg);
+		opacity: .4;
+
+		&.viz{
+			opacity: .6;
+		}
+		&.control{
+			opacity: .6;
+		}
+
+		&.on{
+			opacity: 1;
+		}
+
+		&.hl{
+			border-color: #fff;
+		}
+
+		button{
+			width: 100%;
+			height: 100%;
+
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+	}
+
+}

@@ -1,13 +1,18 @@
 import { Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
+import { FloopModule } from './floop/floop.module';
 
-@Component({
+
+@Component( {
   selector: 'app-root',
-  templateUrl: 'app.component.html',
-  styleUrls: ['app.component.scss'],
   standalone: true,
-  imports: [IonicModule],
-})
-export class AppComponent {
-  constructor() {}
+  imports: [ IonicModule, FloopModule ],
+  template: `
+	  <ion-app>
+		  <ion-router-outlet></ion-router-outlet>
+	  </ion-app>
+  `,
+} )
+export class AppComponent{
+  constructor(){}
 }

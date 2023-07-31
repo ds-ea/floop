@@ -1,0 +1,61 @@
+@use 'include-media' as im;
+
+body{
+	background-color: var(--flp-body-bg);
+}
+
+.floop-device{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	width: 100vw;
+	height: 100vh;
+}
+
+.floop-frame{
+
+	position: relative;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+
+
+	width: 100%;
+	height: 100%;
+	max-width: 600px;
+	max-height: 1040px;
+
+	padding-top: calc( env(safe-area-inset-top) + var(--flp-frame-pad) * .5);
+	padding-right: calc( env(safe-area-inset-right) + var(--flp-frame-pad) * .5);
+	padding-bottom: calc( env(safe-area-inset-bottom) + var(--flp-frame-pad)* .5 );
+	padding-left: calc( env(safe-area-inset-left) + var(--flp-frame-pad) * .5);
+
+	@include im.media('>=tablet'){
+		padding-top: calc( env(safe-area-inset-top) + var(--flp-frame-pad) );
+		padding-right: calc( env(safe-area-inset-right) + var(--flp-frame-pad) );
+		padding-bottom: calc( env(safe-area-inset-bottom) + var(--flp-frame-pad) );
+		padding-left: calc( env(safe-area-inset-left) + var(--flp-frame-pad) );
+	}
+
+
+	background-color: var(--flp-frame-bg);
+	color: var(--flp-frame-fg);
+
+	border-radius: var(--flp-frame-radius);
+	box-shadow: var(--flp-frame-shadow), inset var(--flp-frame-bevel);
+
+
+
+	> header{
+		font-family: var(--flp-frame-font);
+
+		h1{
+			font-size: 1.2rem;
+		}
+	}
+
+}
+
