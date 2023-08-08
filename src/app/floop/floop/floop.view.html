@@ -1,3 +1,60 @@
-<p>
-  floop works!
-</p>
+<article class="floop-device"
+		 [class.power-on]="powered"
+		 [class.power-off]="!powered"
+		 [class.ready]="ready"
+>
+	<div class="floop-frame">
+
+		<header>
+			<h1>floop v.0</h1>
+			<a class="thepower" (click)="onOff()">
+				<ion-icon class="icon" name="power"></ion-icon>
+			</a>
+		</header>
+		<section class="floop-display dynamic" #controlDisplay>
+			<div class="retro"></div>
+			<div class="panel">
+			</div>
+		</section>
+
+		<section class="floop-display control" #controlDisplay>
+			<div class="retro"></div>
+			<div class="panel">
+				<div *ngFor="let btn of controlButtons"
+					 [ngClass]="['btn', btn.type, btn.on ? 'on' : 'off' ]"
+				>
+					<button
+							(click)="tapButton(btn, $event)"
+					>
+						{{btn.label ?? ''}}
+					</button>
+				</div>
+			</div>
+		</section>
+
+		<section class="floop-display sequencer" #sequencerDisplay>
+			<div class="retro"></div>
+			<div class="panel">
+				<div *ngFor="let btn of sequencerButtons ; trackBy: trackButtonNumber"
+					 [ngClass]="['btn', btn.type, btn.hl ? 'hl' : '', btn.on ? 'on' : 'off' ]"
+					 [attr.data-btn-num]="btn.num"
+				>
+					<button (click)="tapButton(btn, $event)">
+						<ion-icon *ngIf="btn.icon"
+								  class="icon"
+								  [name]="btn.icon"
+
+						></ion-icon>
+
+						<ng-container *ngIf="!btn.icon">
+							<!--{{btn.step != null ?  (+btn.step+1) : ''}}
+							<br />-->
+							{{btn.label ?? ''}}
+						</ng-container>
+					</button>
+				</div>
+			</div>
+		</section>
+
+	</div>
+</article>

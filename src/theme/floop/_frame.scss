@@ -12,6 +12,12 @@ body{
 
 	width: 100vw;
 	height: 100vh;
+
+	&.power-off{
+		.floop-display{
+			pointer-events: none;
+		}
+	}
 }
 
 .floop-frame{
@@ -22,11 +28,13 @@ body{
 	flex-direction: column;
 	justify-content: flex-end;
 
+	flex: 0 1 auto;
 
-	width: 100%;
-	height: 100%;
-	max-width: 600px;
-	max-height: 1040px;
+	width: 600px;
+	//height: 1040px;
+	height: auto;
+	max-width: 100%;
+	max-height: 100%;
 
 	padding-top: calc( env(safe-area-inset-top) + var(--flp-frame-pad) * .5);
 	padding-right: calc( env(safe-area-inset-right) + var(--flp-frame-pad) * .5);
@@ -44,17 +52,41 @@ body{
 	background-color: var(--flp-frame-bg);
 	color: var(--flp-frame-fg);
 
-	border-radius: var(--flp-frame-radius);
 	box-shadow: var(--flp-frame-shadow), inset var(--flp-frame-bevel);
+
+	border-radius: var(--flp-frame-radius);
+	@include im.media('>=tablet'){
+	}
 
 
 
 	> header{
 		font-family: var(--flp-frame-font);
 
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: flex-end;
+
+		user-select: none;
+
 		h1{
 			font-size: 1.2rem;
 		}
+
+		.thepower{
+			color: inherit;
+			cursor: pointer;
+			margin-bottom: calc( var(--flp-display-gap) *.5 );
+
+			@at-root .floop-device.powered &{
+				color: red;
+			}
+			@at-root .floop-device.ready &{
+				color: greenyellow;
+			}
+		}
+
 	}
 
 }
