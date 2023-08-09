@@ -1,7 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { AnimationController } from '@ionic/angular';
 import * as Tone from 'tone/build/esm';
-import { SynthSequence, SynthService, SynthSong, SynthTrack } from '../services/synth.service';
+import { SynthInstrument, SynthSequence, SynthService, SynthSong, SynthTrack, SynthTrigger } from '../services/synth.service';
 
 
 type ControlType = 'instrument' | 'track';
@@ -17,6 +18,7 @@ type BtnData = {
 
 	on?:boolean;
 	hl?:boolean;
+	blink?:boolean;
 
 	label?:string;
 	icon?:string;
@@ -47,8 +49,6 @@ export class FloopView implements OnInit{
 	public sequencerButtons:BtnData[] = [];
 	public sequencerMatrix:{ [row:number]:{ [col:number]:BtnData } } = {};
 	public stepMatrix:{ btn:BtnData }[] = [];
-	public stepCount = 16;
-	public beatsPerBar = this.stepCount / 4;
 
 	public bpm = 200;
 	public dir = 1;
@@ -59,29 +59,29 @@ export class FloopView implements OnInit{
 	public currentInstrument!:number;
 	public currentSequence!:number;
 
-	public sequence:SynthSequence|undefined;
+	public sequence:SynthSequence | undefined;
 
 	constructor(
 		private cdr:ChangeDetectorRef,
 		private renderer:Renderer2,
 		private synth:SynthService,
 		private el:ElementRef,
+		private animCtrl:AnimationController
 	){
 
 		this._prepButtons();
 
 		this.synth.events
 			.subscribe( event => {
-				if( event.type === 'beat' ){
-//					const [seq, beat] = event.position.split(':',3);
-//					const step = (+seq * this.beatsPerBar) + (+beat) ;
+				if( event.type === 'beat' )
 					this.animateStep( event.step );
-				}
-			});
+				if( event.type === 'trigger' )
+					this.animateInstrument( event.instrument, event.trigger );
+			} );
 
 
 		// TODO: update instrument init when instrument creation functionality exists
-		for( const instrument of this.synth.defaultInstruments() )
+		for( const instrument of SynthService.defaultInstruments() )
 			this.synth.addInstrument( instrument );
 
 		this._updateInstruments();
@@ -227,7 +227,7 @@ export class FloopView implements OnInit{
 			this.stepMatrix.push( { btn } );
 			btn.step = step++;
 		}
-		if( step !== this.stepCount )
+		if( step !== this.synth.stepCount )
 			throw new Error( 'step count mismatch during button init' );
 
 
@@ -286,7 +286,7 @@ export class FloopView implements OnInit{
 		this.selectSequence();
 
 		// highlight instrument button
-		for( const btn of Object.values( this.controlMatrix.instrument.buttons) )
+		for( const btn of Object.values( this.controlMatrix.instrument.buttons ) )
 			btn.on = btn.instrument === this.currentInstrument;
 	}
 
@@ -306,7 +306,7 @@ export class FloopView implements OnInit{
 	 */
 	private _updateSequence(){
 		this.sequence = this.synth.getSequence( this.currentInstrument, this.currentSequence );
-		this.stepMatrix.forEach( ({btn}) => btn.on = !!this.sequence?.steps[btn.step!] );
+		this.stepMatrix.forEach( ( { btn } ) => btn.on = !!this.sequence?.steps[btn.step!] );
 	}
 
 	private selectSequence( sequenceNumber?:number ){
@@ -322,7 +322,7 @@ export class FloopView implements OnInit{
 	public toggleStep( step:number ){
 		const event = this.synth.toggleStep( this.currentInstrument, this.currentSequence, step );
 
-		this.stepMatrix[ step ].btn.on = !!event;
+		this.stepMatrix[step].btn.on = !!event;
 	}
 
 
@@ -338,12 +338,29 @@ export class FloopView implements OnInit{
 		btn.hl = true;
 
 		this.prevStep = this.currentStep;
-//		requestAnimationFrame( () => {});
 		this.cdr.detectChanges();
 
 	}
 
+	private animateInstrument( instrument:number, trigger?:SynthTrigger ){
+		const btn = this.controlMatrix.instrument.buttons[instrument];
+		if( !btn )
+			return;
+
+		btn.blink = false;
+		this.cdr.detectChanges();
+		setTimeout(()=>{
+			btn.blink = true;
+			this.cdr.detectChanges();
+		});
+
+	}
+
+
+	/** helper for improving a bit of DOM performance via trackBy pipe */
 	public trackButtonNumber( index:number, btn:BtnData ):number{
 		return btn.num!;
 	}
+
+
 }

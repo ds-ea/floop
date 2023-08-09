@@ -139,9 +139,9 @@
 		overflow: hidden;
 
 		transition:
-			background-color .1s ease-in,
-			opacity .1s ease-in-out,
-			border-color .3s ease-in-out
+			background-color .2s ease-out,
+			opacity .2s ease-out,
+			border-color .3s ease-out
 			;
 
 
@@ -158,6 +158,10 @@
 
 		&.hl{
 			border-color: #fff;
+		}
+
+		&.blink{
+			animation: blinkButton .3s forwards;
 		}
 
 		button, .button{
@@ -181,4 +185,15 @@
 		}
 	}
 
+}
+
+
+
+@keyframes blinkButton {
+	0%{
+		filter: brightness(1.5);
+	}
+	100% {
+		filter: brightness(1);
+	}
 }

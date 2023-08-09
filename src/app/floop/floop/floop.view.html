@@ -22,6 +22,7 @@
 			<div class="panel">
 				<div *ngFor="let btn of controlButtons"
 					 [ngClass]="['btn', btn.type, btn.on ? 'on' : 'off' ]"
+					 [class.blink]="btn.blink"
 				>
 					<button
 							(click)="tapButton(btn, $event)"
