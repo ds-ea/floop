@@ -1,30 +1,9 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { AnimationController } from '@ionic/angular';
-import * as Tone from 'tone/build/esm';
-import { SynthInstrument, SynthSequence, SynthService, SynthSong, SynthTrack, SynthTrigger } from '../services/synth.service';
-
-
-type ControlType = 'instrument' | 'track';
-type BtnData = {
-	type?:'control' | 'trigger' | 'viz' | 'instrument' | 'track' | undefined;
-
-	num?:number;
-	row:number;
-	col:number;
-
-	step?:number;
-	instrument?:number;
-
-	on?:boolean;
-	hl?:boolean;
-	blink?:boolean;
-
-	label?:string;
-	icon?:string;
-
-	action?:CallableFunction;
-};
+import { SynthService } from '../services/synth.service';
+import { BtnData, ControlType } from '../types/floop.types';
+import { SynthSequence, SynthTrigger } from '../types/synth.types';
 
 
 
@@ -38,6 +17,8 @@ export class FloopView implements OnInit{
 	public powered = false;
 	public ready = false;
 
+	public bootDone:boolean = false;
+	public instantOn = false;
 
 	public controlButtons:BtnData[] = [];
 	public controlMatrix:Record<ControlType, {
@@ -60,6 +41,9 @@ export class FloopView implements OnInit{
 	public currentSequence!:number;
 
 	public sequence:SynthSequence | undefined;
+
+	public dynamicContent:'viz'|'boot'|undefined;
+
 
 	constructor(
 		private cdr:ChangeDetectorRef,
@@ -108,13 +92,29 @@ export class FloopView implements OnInit{
 
 		if( this.powered ){
 			await this.synth.ready();
+
 			this.ready = true;
+			if( this.instantOn ){
+				this.bootReady();
+			}else{
+				this.synth.playJingle();
+				this.dynamicContent = 'boot';
+			}
 		}else{
 			this.ready = false;
 		}
 
 		this.cdr.markForCheck();
 	}
+
+	public bootReady(){
+		this.bootDone = true;
+		this.dynamicContent = 'viz';
+		this.cdr.markForCheck();
+	}
+
+
+
 
 	public playPause(){
 		this.synth.playPause();
@@ -282,6 +282,11 @@ export class FloopView implements OnInit{
 
 
 	public selectInstrument( instrumentNum:number ){
+		if( instrumentNum === this.currentInstrument ){
+			this.synth.triggerInstrument( instrumentNum );
+			return;
+		}
+
 		this.currentInstrument = instrumentNum;
 		this.selectSequence();
 

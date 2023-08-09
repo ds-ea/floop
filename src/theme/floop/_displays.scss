@@ -27,6 +27,12 @@
 		}
 	}
 
+	&.off{
+		> * {
+			opacity: 0;
+		}
+	}
+
 
 	&.dynamic{
 		aspect-ratio: 1.55;
@@ -36,6 +42,14 @@
 
 		code, kbd, pre, samp{
 			font-family: inherit;
+		}
+
+		.panel{
+			display: flex;
+
+			> *{
+				flex-grow: 1;
+			}
 		}
 	}
 

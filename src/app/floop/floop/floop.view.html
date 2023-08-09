@@ -1,7 +1,7 @@
 <article class="floop-device"
 		 [class.power-on]="powered"
 		 [class.power-off]="!powered"
-		 [class.ready]="ready"
+		 [class.ready]="ready && bootDone"
 >
 	<div class="floop-frame">
 
@@ -11,13 +11,20 @@
 				<ion-icon class="icon" name="power"></ion-icon>
 			</a>
 		</header>
-		<section class="floop-display dynamic" #controlDisplay>
+		<section class="floop-display dynamic" #dynamicDisplay
+				 [class.off]="!ready"
+				 [class.on]="ready"
+		>
 			<div class="retro"></div>
 			<div class="panel">
+				<boot-screen *ngIf="dynamicContent==='boot'" (ready)="bootReady()"></boot-screen>
 			</div>
 		</section>
 
-		<section class="floop-display control" #controlDisplay>
+		<section class="floop-display control" #controlDisplay
+				 [class.off]="!ready || !bootDone"
+				 [class.on]="ready && bootDone"
+		>
 			<div class="retro"></div>
 			<div class="panel">
 				<div *ngFor="let btn of controlButtons"
@@ -33,7 +40,10 @@
 			</div>
 		</section>
 
-		<section class="floop-display sequencer" #sequencerDisplay>
+		<section class="floop-display sequencer" #sequencerDisplay
+				 [class.off]="!ready || !bootDone"
+				 [class.on]="ready && bootDone"
+		>
 			<div class="retro"></div>
 			<div class="panel">
 				<div *ngFor="let btn of sequencerButtons ; trackBy: trackButtonNumber"

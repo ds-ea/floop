@@ -79,7 +79,7 @@ body{
 			cursor: pointer;
 			margin-bottom: calc( var(--flp-display-gap) *.5 );
 
-			@at-root .floop-device.powered &{
+			@at-root .floop-device.power-on &{
 				color: red;
 			}
 			@at-root .floop-device.ready &{
