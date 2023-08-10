@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 
 @Component( {
-	selector: 'settings-screen',
+	selector: 'instrument-screen',
 	styles:[`
 		:host {
 			display: flex;
@@ -11,11 +11,11 @@ import { Component, OnInit } from '@angular/core';
 		}
 	`],
 	template: `
-		SETTINGS!
+		instruments
 	`,
 } )
 
-export class SettingsScreenComponent implements OnInit{
+export class InstrumentScreenComponent implements OnInit{
 	constructor(){ }
 
 	ngOnInit(){ }

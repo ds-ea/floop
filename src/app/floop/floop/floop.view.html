@@ -18,6 +18,9 @@
 			<div class="retro"></div>
 			<div class="panel">
 				<boot-screen *ngIf="dynamicContent==='boot'" (ready)="bootReady()"></boot-screen>
+				<settings-screen *ngIf="dynamicContent==='settings'" ></settings-screen>
+				<viz-screen *ngIf="dynamicContent==='viz'" ></viz-screen>
+				<instrument-screen *ngIf="dynamicContent==='instrument'" ></instrument-screen>
 			</div>
 		</section>
 

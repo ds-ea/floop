@@ -18,7 +18,7 @@ export class FloopView implements OnInit{
 	public ready = false;
 
 	public bootDone:boolean = false;
-	public instantOn = false;
+	public instantOn = true;
 
 	public controlButtons:BtnData[] = [];
 	public controlMatrix:Record<ControlType, {
@@ -42,7 +42,7 @@ export class FloopView implements OnInit{
 
 	public sequence:SynthSequence | undefined;
 
-	public dynamicContent:'viz'|'boot'|undefined;
+	public dynamicContent:'viz'|'boot'|'settings'|'instrument'|'song'|undefined;
 
 	private _powerOnTouchHandler:CallableFunction|undefined;
 
@@ -63,14 +63,6 @@ export class FloopView implements OnInit{
 				if( event.type === 'trigger' )
 					this.animateInstrument( event.instrument, event.trigger );
 			} );
-
-
-		// TODO: update instrument init when instrument creation functionality exists
-		for( const instrument of SynthService.defaultInstruments() )
-			this.synth.addInstrument( instrument );
-
-		this._updateInstruments();
-		this.selectInstrument( 0 );
 
 	}
 
@@ -102,6 +94,7 @@ export class FloopView implements OnInit{
 
 		if( this.powered ){
 			await this.synth.ready();
+			this._initDevice();
 
 			this.ready = true;
 			if( this.instantOn ){
@@ -126,6 +119,16 @@ export class FloopView implements OnInit{
 		this.bootDone = true;
 		this.dynamicContent = 'viz';
 		this.cdr.markForCheck();
+	}
+
+	/** for initializing things that are dependent on audio context and stuff */
+	private _initDevice(){
+		// TODO: update instrument init when instrument creation functionality exists
+		for( const instrument of SynthService.defaultInstruments() )
+			this.synth.addInstrument( instrument );
+
+		this._updateInstruments();
+		this.selectInstrument( 0 );
 	}
 
 
@@ -259,6 +262,18 @@ export class FloopView implements OnInit{
 			action: () => this.dir *= -1,
 		} );
 
+		Object.assign( this.sequencerMatrix[0][0], {
+			label: 'viz',
+			icon: 'pulse-sharp',
+			action: () => this.dynamicContent = 'viz',
+		} );
+
+		Object.assign( this.sequencerMatrix[0][colCount - 1], {
+			label: 'settings',
+			icon: 'settings-sharp',
+			action: () => this.dynamicContent = 'settings',
+		} );
+
 	}
 
 
@@ -291,17 +306,22 @@ export class FloopView implements OnInit{
 	}
 
 	private _tapInstrument( btn:BtnData ){
+		// if instrument is already selected, trigger sound and switch to appropriate view
+		if( btn.instrument === this.currentInstrument ){
+			this.synth.triggerInstrument( btn.instrument );
+
+			if( this.dynamicContent !== 'instrument' )
+				this.dynamicContent = 'instrument';
+
+			return;
+		}
+
 		if( btn.instrument != null )
 			this.selectInstrument( btn.instrument );
 	}
 
 
 	public selectInstrument( instrumentNum:number ){
-		if( instrumentNum === this.currentInstrument ){
-			this.synth.triggerInstrument( instrumentNum );
-			return;
-		}
-
 		this.currentInstrument = instrumentNum;
 		this.selectSequence();
 

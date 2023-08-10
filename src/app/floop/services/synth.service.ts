@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { context } from 'tone/build/esm';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 
 import * as Tone from 'tone/build/esm';
 import { Instrument } from 'tone/build/esm/instrument/Instrument';
@@ -11,8 +11,8 @@ import { SynthEvent, SynthInstrument, SynthSequence, SynthSequenceEvent, SynthSo
 } )
 export class SynthService{
 
-
 	public events = new EventEmitter<SynthEvent>();
+	public stateChange = new BehaviorSubject<Tone.PlaybackState>('stopped');
 
 	/** song is the "source of truth" for everything */
 	public song:SynthSong;
@@ -44,6 +44,7 @@ export class SynthService{
 	 * */
 	public playbackMatrix:Array<Array<Array<{ event:SynthSequenceEvent, instrument:number }>>> = [];
 
+	public master!:Tone.Gain;
 
 	public get bpm():number{
 		return Tone.Transport.bpm.value;
@@ -64,6 +65,12 @@ export class SynthService{
 	public async ready():Promise<void>{
 		try{
 			await Tone.start();
+			this.master = new Tone.Gain().toDestination();
+
+			Tone.Transport.on('start', ()=> this.stateChange.next('started'));
+			Tone.Transport.on('pause', ()=> this.stateChange.next('paused'));
+			Tone.Transport.on('stop', ()=> this.stateChange.next('stopped'));
+
 
 			Tone.Transport.bpm.value = 200;
 
@@ -73,9 +80,6 @@ export class SynthService{
 			Tone.Transport.loopStart = '0m';
 			Tone.Transport.loopEnd = '4m';
 
-			//			Tone.Transport.on( 'loop', ( ...args ) => {
-			//				console.log( 'transport loop', args );
-			//			} );
 
 			console.debug( 'synth ready' );
 
@@ -113,7 +117,7 @@ export class SynthService{
 		this.synths.push( instrument.synth );
 
 		// connect to audio
-		instrument.synth.toDestination();
+		instrument.synth.connect( this.master );
 
 		this.song.tracks.push( {
 			instrument,
@@ -491,6 +495,10 @@ export class SynthService{
 			time = time + Tone.Time(duration).toSeconds();
 		} );
 
+	}
+
+	public getContext(){
+		return Tone.getContext();
 	}
 
 }
