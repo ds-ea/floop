@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, forwardRef, Input, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 
 @Component( {
@@ -43,7 +44,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 					margin-inline-start: 10px;
 					margin-inline-end: 10px;
 
+					font-size: var(--input-font-size, 20px);
 					text-align: center;
+
 
 					&:focus{
 						background: #ffffff22;
@@ -99,7 +102,9 @@ export class InputStepperComponent implements ControlValueAccessor{
 
 	private _touchStartX:number|undefined;
 	private _touchStartValue:number|undefined;
-	private _touchThreshold = 10;
+
+	@Input() public touchThreshold = 20;
+	@Input() public touchSensitivity:number = 20;
 
 	public preventDirectInput = true;
 
@@ -154,8 +159,11 @@ export class InputStepperComponent implements ControlValueAccessor{
 		if( this.value == null )
 			this.value = 0;
 
+		Haptics.impact({style: ImpactStyle.Medium});
+
 		const newValue = +this.value + ( up ? this.increment : -this.increment );
 		this._setValue( newValue );
+
 
 		this.out();
 		this.cdr.markForCheck();
@@ -191,12 +199,19 @@ export class InputStepperComponent implements ControlValueAccessor{
 	public touchMove( $event:TouchEvent ){
 		const dist = this._touchStartX! - $event.touches[0].clientX;
 
-		if( Math.abs(dist) < this._touchThreshold )
+		if( Math.abs(dist) < this.touchThreshold )
 			return;
 
-		const valueChange = Math.round(dist / 10) * this.increment;
-		const newValue = Math.round(this._touchStartValue! - valueChange );
-		this.value = this._clampValue( newValue );
+
+		const valueChange = Math.round(dist / this.touchSensitivity) * this.increment;
+		const newValue = this._clampValue( Math.round(this._touchStartValue! - valueChange ) );
+		if( newValue != this.value )
+			Haptics.impact({style: ImpactStyle.Light});
+
+		this.value = newValue ;
+
+		this.out();
+		this.cdr.markForCheck();
 	}
 
 	public touchEnd( $event:TouchEvent ){
