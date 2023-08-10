@@ -44,6 +44,7 @@ export class FloopView implements OnInit{
 
 	public dynamicContent:'viz'|'boot'|undefined;
 
+	private _powerOnTouchHandler:CallableFunction|undefined;
 
 	constructor(
 		private cdr:ChangeDetectorRef,
@@ -76,17 +77,26 @@ export class FloopView implements OnInit{
 
 	ngOnInit(){
 		if( !this.powered ){
-			this.el.nativeElement.addEventListener( 'click', ( event:MouseEvent ) => {
-				event.stopPropagation();
-				event.preventDefault();
-				this.onOff();
-			}, { once: true } );
+			this._powerOnTouchHandler = () => this._touchAnythingToPowerOn();
+			this.el.nativeElement.addEventListener( 'click', this._powerOnTouchHandler, { once: true } );
 		}
 	}
 
+	private _touchAnythingToPowerOn( event?:Event ){
+		if( event ){
+				event.stopPropagation();
+			event.preventDefault();
+		}
+		this.onOff();
+	}
 
 
 	public async onOff(){
+		if( this._powerOnTouchHandler ){
+			this.el.nativeElement.removeEventListener( 'click', this._powerOnTouchHandler );
+			this._powerOnTouchHandler = undefined;
+		}
+
 		this.powered = !this.powered;
 		this.cdr.markForCheck();
 
@@ -101,7 +111,12 @@ export class FloopView implements OnInit{
 				this.dynamicContent = 'boot';
 			}
 		}else{
+			this.synth.stop();
+
 			this.ready = false;
+			this.bootDone = false;
+			this.dynamicContent = undefined;
+			this.instantOn = true;
 		}
 
 		this.cdr.markForCheck();
