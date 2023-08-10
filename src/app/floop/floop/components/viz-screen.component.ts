@@ -59,6 +59,9 @@ export class VizScreenComponent implements AfterViewInit, OnDestroy{
 
 
 	private _initDraw(){
+		if( !this.canvas?.nativeElement )
+			return;
+
 		const canvasElement = this.canvas.nativeElement;
 		const canvasContext = canvasElement.getContext( '2d' )!;
 

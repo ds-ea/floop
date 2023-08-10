@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { AnimationController } from '@ionic/angular';
+import { FloopDeviceService } from '../services/floop-device.service';
 import { SynthService } from '../services/synth.service';
-import { BtnData, ControlType } from '../types/floop.types';
+import { BtnData, ControlType, FloopSettings } from '../types/floop.types';
 import { SynthSequence, SynthTrigger } from '../types/synth.types';
 
 
@@ -18,7 +19,7 @@ export class FloopView implements OnInit{
 	public ready = false;
 
 	public bootDone:boolean = false;
-	public instantOn = true;
+	public instantOn = false;
 
 	public controlButtons:BtnData[] = [];
 	public controlMatrix:Record<ControlType, {
@@ -50,6 +51,7 @@ export class FloopView implements OnInit{
 		private cdr:ChangeDetectorRef,
 		private renderer:Renderer2,
 		private synth:SynthService,
+		private floopDevice:FloopDeviceService,
 		private el:ElementRef,
 		private animCtrl:AnimationController
 	){
@@ -63,6 +65,13 @@ export class FloopView implements OnInit{
 				if( event.type === 'trigger' )
 					this.animateInstrument( event.instrument, event.trigger );
 			} );
+
+
+		this.floopDevice.settingsChanged
+			.subscribe( settings => {
+				if( settings.deviceVolume != null )
+					this.synth.masterVolume = settings.deviceVolume;
+			});
 
 	}
 
@@ -93,8 +102,7 @@ export class FloopView implements OnInit{
 		this.cdr.markForCheck();
 
 		if( this.powered ){
-			await this.synth.ready();
-			this._initDevice();
+			await this._initDevice();
 
 			this.ready = true;
 			if( this.instantOn ){
@@ -121,8 +129,16 @@ export class FloopView implements OnInit{
 		this.cdr.markForCheck();
 	}
 
-	/** for initializing things that are dependent on audio context and stuff */
-	private _initDevice(){
+	/** for initializing things that are dependent on audio context and other async stuff */
+	private async _initDevice(){
+		const settings = await this.floopDevice.restoreSettings();
+		this.instantOn = !!settings?.quickBoot;
+
+		await this.synth.ready();
+
+		if( settings?.deviceVolume != null )
+			this.synth.masterVolume = settings?.deviceVolume;
+
 		// TODO: update instrument init when instrument creation functionality exists
 		for( const instrument of SynthService.defaultInstruments() )
 			this.synth.addInstrument( instrument );
@@ -401,6 +417,7 @@ export class FloopView implements OnInit{
 	public trackButtonNumber( index:number, btn:BtnData ):number{
 		return btn.num!;
 	}
+
 
 
 }

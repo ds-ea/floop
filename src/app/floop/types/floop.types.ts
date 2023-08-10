@@ -18,3 +18,9 @@ export type BtnData = {
 
 	action?:CallableFunction;
 };
+
+
+export type FloopSettings = {
+	quickBoot?:boolean;
+	deviceVolume?:number;
+}

@@ -11,6 +11,7 @@ import { SynthEvent, SynthInstrument, SynthSequence, SynthSequenceEvent, SynthSo
 } )
 export class SynthService{
 
+
 	public events = new EventEmitter<SynthEvent>();
 	public stateChange = new BehaviorSubject<Tone.PlaybackState>('stopped');
 
@@ -45,6 +46,14 @@ export class SynthService{
 	public playbackMatrix:Array<Array<Array<{ event:SynthSequenceEvent, instrument:number }>>> = [];
 
 	public master!:Tone.Gain;
+
+	public get masterVolume():number{
+		return 100 / this.master.gain.value;
+	}
+
+	public set masterVolume( value:number ){
+		this.master.gain.value = value / 100;
+	}
 
 	public get bpm():number{
 		return Tone.Transport.bpm.value;

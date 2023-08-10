@@ -11,6 +11,10 @@
 
 	overflow: hidden;
 
+	font-family: var(--flp-display-font);
+	--ion-font-family: var(--flp-display-font);
+
+
 	+ .floop-display{
 		margin-block-start: var(--flp-display-gap);
 	}
@@ -36,7 +40,7 @@
 
 	&.dynamic{
 		aspect-ratio: 1.55;
-		font-family: var(--flp-display-font);
+		//font-family: var(--flp-display-font);
 
 		overflow: auto;
 
@@ -55,6 +59,9 @@
 
 
 	&.control, &.sequencer{
+		font-family: var(--flp-btn-font);
+		--ion-font-family: var(--flp-btn-font);
+
 		.panel{
 			display: grid;
 			grid-template-columns: repeat(6, 1fr);
