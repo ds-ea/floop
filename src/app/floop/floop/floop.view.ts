@@ -47,6 +47,8 @@ export class FloopView implements OnInit{
 
 	private _powerOnTouchHandler:CallableFunction|undefined;
 
+	private _inited = false;
+
 	constructor(
 		private cdr:ChangeDetectorRef,
 		private renderer:Renderer2,
@@ -132,7 +134,7 @@ export class FloopView implements OnInit{
 	/** for initializing things that are dependent on audio context and other async stuff */
 	private async _initDevice(){
 		const settings = await this.floopDevice.restoreSettings();
-		this.instantOn = !!settings?.quickBoot;
+		this.instantOn = this.instantOn || !!settings?.quickBoot;
 
 		await this.synth.ready();
 
@@ -140,11 +142,15 @@ export class FloopView implements OnInit{
 			this.synth.masterVolume = settings?.deviceVolume;
 
 		// TODO: update instrument init when instrument creation functionality exists
-		for( const instrument of SynthService.defaultInstruments() )
-			this.synth.addInstrument( instrument );
+		if( !this._inited ){
+			for( const instrument of SynthService.defaultInstruments() )
+				this.synth.addInstrument( instrument );
 
-		this._updateInstruments();
-		this.selectInstrument( 0 );
+			this._updateInstruments();
+			this.selectInstrument( 0 );
+		}
+
+		this._inited = true;
 	}
 
 
