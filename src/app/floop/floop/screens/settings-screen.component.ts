@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnChanges, OnIni
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { settings } from 'ionicons/icons';
 import { FloopDeviceService } from '../../services/floop-device.service';
+import { SynthService } from '../../services/synth.service';
 import { FloopSettings } from '../../types/floop.types';
 
 
@@ -24,7 +25,13 @@ import { FloopSettings } from '../../types/floop.types';
 			--border-width: 0 0 4px 0 !important;
 			//--padding-top: 20px;
 			//--padding-bottom: 20px;
+
+			ion-item{
+				--border-width: 0!important;
+
+			}
 		}
+
 	`],
 	template: `
 
@@ -35,7 +42,8 @@ import { FloopSettings } from '../../types/floop.types';
 				<ion-checkbox [(ngModel)]="settings.quickBoot"
 							  (ngModelChange)="settingsChanged()"
 							  labelPlacement="start"
-				>Quick Boot (skips boot animation)</ion-checkbox>
+				>Quick Boot (skips boot animation)
+				</ion-checkbox>
 			</ion-item>
 
 			<ion-item>
@@ -49,6 +57,14 @@ import { FloopSettings } from '../../types/floop.types';
 					<ion-icon slot="end" name="volume-high"></ion-icon>
 				</ion-range>
 			</ion-item>
+
+			<ion-item >
+				<input-stepper [(ngModel)]="bpm"
+							   (ngModelChange)="setBPM($event)"
+							   [min]="1"
+							   label="BPM"
+				></input-stepper>
+			</ion-item>
 		</ion-list>
 
 	`,
@@ -59,10 +75,14 @@ export class SettingsScreenComponent implements OnInit{
 
 	public settings:FloopSettings = {};
 
+	public bpm:number;
+
 	constructor(
 		public floopDevice:FloopDeviceService,
+		public synth:SynthService,
 		public cdr:ChangeDetectorRef
 	){
+		this.bpm = this.synth.bpm;
 
 		this.floopDevice.settingsChanged
 			.pipe(takeUntilDestroyed())
@@ -83,9 +103,11 @@ export class SettingsScreenComponent implements OnInit{
 	}
 
 	public settingsChanged(){
-		console.log('sdfds', this.settings);
 		this.floopDevice.settings = this.settings;
 	}
 
+	public setBPM(bpm:number){
+		this.synth.bpm = bpm;
+	}
 
 }

@@ -80,7 +80,6 @@ export class SynthService{
 			Tone.Transport.on('pause', ()=> this.stateChange.next('paused'));
 			Tone.Transport.on('stop', ()=> this.stateChange.next('stopped'));
 
-
 			Tone.Transport.bpm.value = 200;
 
 			this._updateTone();
