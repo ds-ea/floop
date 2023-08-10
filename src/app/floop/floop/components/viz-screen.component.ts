@@ -18,11 +18,12 @@ import * as Tone from 'tone/build/esm';
 			canvas {
 				width: 100%;
 				height: 100%;
+				image-rendering: pixelated;
 			}
 		`,
 	],
 	template: `
-		<canvas #canvas></canvas>
+		<canvas #canvas width="75%" height="75%"></canvas>
 	`,
 } )
 
@@ -30,7 +31,7 @@ export class VizScreenComponent implements AfterViewInit, OnDestroy{
 
 	@ViewChild( 'canvas', { read: ElementRef } ) canvas!:ElementRef<HTMLCanvasElement>;
 
-	private drawRef:number|undefined;
+	private drawRef:number | undefined;
 
 	constructor(
 		private synth:SynthService,
@@ -40,10 +41,10 @@ export class VizScreenComponent implements AfterViewInit, OnDestroy{
 			if( state === 'started' && !this.drawRef )
 				this._initDraw();
 
-			else if( (state === 'stopped' || state === 'paused') && this.drawRef ){
+			else if( ( state === 'stopped' || state === 'paused' ) && this.drawRef ){
 				this._stopDraw();
 			}
-		});
+		} );
 
 	}
 
@@ -64,20 +65,29 @@ export class VizScreenComponent implements AfterViewInit, OnDestroy{
 
 		const canvasElement = this.canvas.nativeElement;
 		const canvasContext = canvasElement.getContext( '2d' )!;
+		canvasContext.imageSmoothingEnabled = false;
 
-		const bufferSize = 512;
+		const bufferSize = 1024;
 		const analyser = new Tone.Analyser( 'waveform', bufferSize );
 		this.synth.master.connect( analyser );
 
+		const afterGlow = true;
 
-		const draw = ()=>{
+		const draw = () => {
 			this.drawRef = requestAnimationFrame( draw );
 
 			const values = analyser.getValue();
-			const height = canvasElement.height;
 			const width = canvasElement.width;
+			const height = canvasElement.height;
 
-			canvasContext.clearRect( 0, 0, width, height );
+
+			if( afterGlow ){
+				canvasContext.fillStyle = 'rgba(0,0,0,.5)';
+				canvasContext.fillRect( 0, 0, width, height );
+			}else{
+				canvasContext.clearRect( 0, 0, width, height );
+			}
+
 			canvasContext.lineWidth = 1;
 			canvasContext.strokeStyle = '#ffffff';
 			canvasContext.beginPath();
@@ -89,7 +99,7 @@ export class VizScreenComponent implements AfterViewInit, OnDestroy{
 
 			for( let i = 0 ; i < bufferSize ; i++ ){
 				const amplitude = <number> values[i];
-				let y = height / 2 + amplitude * height;
+				let y = Math.min( height / 2 + amplitude * height, height );
 
 				canvasContext.lineTo( x, y );
 				x += sliceWidth;
@@ -97,7 +107,7 @@ export class VizScreenComponent implements AfterViewInit, OnDestroy{
 
 			canvasContext.lineTo( width, height / 2 );
 			canvasContext.stroke();
-		}
+		};
 
 		if( this.synth.stateChange.getValue() === 'started' )
 			draw();

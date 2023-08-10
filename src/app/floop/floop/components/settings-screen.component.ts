@@ -14,18 +14,23 @@ import { FloopSettings } from '../../types/floop.types';
 			flex-direction: column;
 			overflow: auto;
 
-			justify-content: center;
+			justify-content: flex-start;
 		}
-
 		ion-list{
-			justify-self: flex-start;
+			--ion-border-color: #000000;
+			padding: 0;
+		}
+		ion-item{
+			--border-width: 0 0 4px 0 !important;
+			//--padding-top: 20px;
+			//--padding-bottom: 20px;
 		}
 	`],
 	template: `
 
 		<ion-spinner *ngIf="busy" name="circular"></ion-spinner>
 
-		<ion-list *ngIf="!busy" lines="inset">
+		<ion-list *ngIf="!busy" lines="full">
 			<ion-item>
 				<ion-checkbox [(ngModel)]="settings.quickBoot"
 							  (ngModelChange)="settingsChanged()"

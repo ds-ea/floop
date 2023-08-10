@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { AnimationController } from '@ionic/angular';
+import { debounce, timer } from 'rxjs';
+import { PlaybackState } from 'tone';
 import { FloopDeviceService } from '../services/floop-device.service';
 import { SynthService } from '../services/synth.service';
 import { BtnData, ControlType, FloopSettings } from '../types/floop.types';
@@ -163,7 +166,6 @@ export class FloopView implements OnInit{
 
 	private _prepButtons(){
 		const colCount = 6;
-
 		// /////////////////////////////////////////////////////////
 		// controls
 
@@ -272,11 +274,24 @@ export class FloopView implements OnInit{
 
 
 		// set controls
-		Object.assign( this.sequencerMatrix[rowCount - 1][0], {
+		const playPauseButton = this.sequencerMatrix[rowCount - 1][0];
+		Object.assign( playPauseButton, {
 			label: 'playpause',
 			icon: 'play',
 			action: () => this.playPause(),
 		} );
+		this.synth.stateChange.pipe(
+			takeUntilDestroyed(),
+			debounce(() => timer(50))
+		).subscribe( state =>{
+			const stateIconMap:Record<PlaybackState, string> = {
+				paused: 'play',
+				stopped: 'play',
+				started: 'pause',
+			};
+			playPauseButton.icon = stateIconMap[ state ];
+			this.cdr.detectChanges();
+		});
 
 		Object.assign( this.sequencerMatrix[rowCount - 1][colCount - 1], {
 			label: 'reverse',

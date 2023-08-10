@@ -89,9 +89,6 @@ export class SynthService{
 			Tone.Transport.loopStart = '0m';
 			Tone.Transport.loopEnd = '4m';
 
-
-			console.debug( 'synth ready' );
-
 			return Promise.resolve();
 		}catch( error ){
 			console.warn( 'Audio context not started!', error );
