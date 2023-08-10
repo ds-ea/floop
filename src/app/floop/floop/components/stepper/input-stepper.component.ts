@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, forwardRef, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 
@@ -13,10 +13,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 	],
 	styles: [
 		`
-			:host {
+			:host, .touch {
 				display: flex;
 				align-items: center;
 				justify-content: flex-start;
+				user-select: none;
 			}
 
 			label{
@@ -52,19 +53,35 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 		`,
 	],
 	template: `
-		<label *ngIf="label">{{label}}</label>
-		<div class="controls">
-			<ion-icon name="caret-back" (click)="valueStep(false, $event)"></ion-icon>
-			<input [(ngModel)]="value"
-				   (blur)="checkInput()"
-				   [disabled]="disabled"
-				   pattern="[0-9]"
-				   [size]="size"
-			/>
-			<ion-icon name="caret-forward" (click)="valueStep(true, $event)"></ion-icon>
-		</div>`,
+		<div class="touch"
+			 (touchstart)="touchStart($event)"
+			 (touchmove)="touchMove($event)"
+			 (touchend)="touchEnd($event)"
+			 (touchcancel)="touchCancel($event)"
+		>
+			<label *ngIf="label">{{label}}</label>
+			<div class="controls">
+				<ion-icon name="caret-back" (click)="valueStep(false, $event)"></ion-icon>
+				<input #input
+					   [(ngModel)]="value"
+					   [disabled]="disabled"
+					   pattern="[0-9]"
+					   [size]="size"
+					   [readOnly]="preventDirectInput"
+
+					   (click)="toggleDirectInput()"
+
+					   (blur)="commitDirectInput()"
+					   (keydown.enter)="commitDirectInput()"
+				/>
+				<ion-icon name="caret-forward" (click)="valueStep(true, $event)"></ion-icon>
+			</div>
+		</div>
+	`,
 } )
 export class InputStepperComponent implements ControlValueAccessor{
+
+	@ViewChild('input') input:HTMLInputElement|undefined;
 
 	public value:number | undefined;
 
@@ -80,6 +97,11 @@ export class InputStepperComponent implements ControlValueAccessor{
 	private onChanged = ( value:number | undefined ) => undefined;
 	private onTouched = () => undefined;
 
+	private _touchStartX:number|undefined;
+	private _touchStartValue:number|undefined;
+	private _touchThreshold = 10;
+
+	public preventDirectInput = true;
 
 	constructor(
 		private cdr:ChangeDetectorRef,
@@ -140,10 +162,50 @@ export class InputStepperComponent implements ControlValueAccessor{
 	}
 
 
+	public toggleDirectInput(){
+		// not toggling for now, just straight clicking
+//		this.preventDirectInput = !this.preventDirectInput;
+		if( this.preventDirectInput )
+			this.preventDirectInput = false;
 
-	public checkInput(){
+		if( this.preventDirectInput )
+			this.input?.focus();
+
+	}
+
+
+	public commitDirectInput(){
 		this.value = this._clampValue( this.value );
+		this.preventDirectInput = true;
 		this.out();
 		this.cdr.markForCheck();
 	}
+
+
+
+	public touchStart( $event:TouchEvent ){
+		this._touchStartValue = this.value;
+		this._touchStartX = $event.touches[0].clientX;
+	}
+
+	public touchMove( $event:TouchEvent ){
+		const dist = this._touchStartX! - $event.touches[0].clientX;
+
+		if( Math.abs(dist) < this._touchThreshold )
+			return;
+
+		const valueChange = Math.round(dist / 10) * this.increment;
+		const newValue = Math.round(this._touchStartValue! - valueChange );
+		this.value = this._clampValue( newValue );
+	}
+
+	public touchEnd( $event:TouchEvent ){
+		this._touchStartX = undefined;
+	}
+
+	public touchCancel( $event:TouchEvent ){
+		this._touchStartX = undefined;
+	}
+
+
 }

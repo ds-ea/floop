@@ -23,13 +23,6 @@ import { FloopSettings } from '../../types/floop.types';
 		}
 		ion-item{
 			--border-width: 0 0 4px 0 !important;
-			//--padding-top: 20px;
-			//--padding-bottom: 20px;
-
-			ion-item{
-				--border-width: 0!important;
-
-			}
 		}
 
 	`],
