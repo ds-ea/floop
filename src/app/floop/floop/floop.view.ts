@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Device } from '@capacitor/device';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Animation, StatusBar } from '@capacitor/status-bar';
 import { AnimationController } from '@ionic/angular';
 import { debounce, timer } from 'rxjs';
 import { PlaybackState } from 'tone';
 import { FloopDeviceService } from '../services/floop-device.service';
 import { SynthService } from '../services/synth.service';
-import { BtnData, ControlType, FloopSettings } from '../types/floop.types';
+import { BtnData, ControlType } from '../types/floop.types';
 import { SynthSequence, SynthTrigger } from '../types/synth.types';
 
 
@@ -60,6 +62,11 @@ export class FloopView implements OnInit{
 		private el:ElementRef,
 		private animCtrl:AnimationController
 	){
+
+		Device.getInfo().then(info=>{
+			if( info.platform !== 'web' )
+				StatusBar.hide({animation:Animation.Fade});
+		});
 
 		this._prepButtons();
 

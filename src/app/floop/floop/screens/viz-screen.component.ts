@@ -23,7 +23,7 @@ import * as Tone from 'tone/build/esm';
 		`,
 	],
 	template: `
-		<canvas #canvas width="75%" height="75%"></canvas>
+		<canvas #canvas ></canvas>
 	`,
 } )
 
@@ -79,7 +79,6 @@ export class VizScreenComponent implements AfterViewInit, OnDestroy{
 			const values = analyser.getValue();
 			const width = canvasElement.width;
 			const height = canvasElement.height;
-
 
 			if( afterGlow ){
 				canvasContext.fillStyle = 'rgba(0,0,0,.5)';

@@ -1,7 +1,10 @@
 
 $breakpoints: (phone: 320px, tablet: 768px, desktop: 1024px);
 
+$useFrame: false;
+
 :root{
+
 	--flp-body-bg: #000;
 	--flp-frame-font: Technicality1;
 	--flp-display-font: Technicality1;
@@ -10,9 +13,11 @@ $breakpoints: (phone: 320px, tablet: 768px, desktop: 1024px);
 	--flp-frame-bg: #292929;
 	--flp-frame-fg: #848484;
 	--flp-frame-radius: 12px;
+	--flp-frame-pad: 30px;
+
 	--flp-frame-shadow: 0 0 50px rgba(0,0,0,.5);
 	--flp-frame-bevel: 2px 4px 6px rgba(118,118,118,.5);
-	--flp-frame-pad: 30px;
+
 
 	--flp-display-bg: #000;
 	--flp-display-radius: 4px;
@@ -20,5 +25,12 @@ $breakpoints: (phone: 320px, tablet: 768px, desktop: 1024px);
 	--flp-display-gap: 20px;
 
 	--flp-display-panel-gap: 10px;
+
+
+	@if not $useFrame {
+		--flp-body-bg: var(--flp-frame-bg);
+		--flp-frame-shadow: none;
+		--flp-frame-bevel: none;
+	}
 
 }
