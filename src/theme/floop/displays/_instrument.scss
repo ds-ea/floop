@@ -1,0 +1,18 @@
+
+instrument-screen{
+
+	display: flex;
+
+	> .main{
+		flex-grow: 1;
+
+		display: flex;
+		overflow-y: auto;
+
+		> *{
+			flex-grow: 1;
+		}
+	}
+
+
+}

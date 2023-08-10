@@ -1,9 +1,23 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
+import { AMSynthOptions, FMSynth, FMSynthOptions, MembraneSynthOptions, PolySynthOptions, SynthOptions } from 'tone';
 
 import * as Tone from 'tone/build/esm';
 import { Instrument } from 'tone/build/esm/instrument/Instrument';
-import { SynthEvent, SynthInstrument, SynthSequence, SynthSequenceEvent, SynthSong, SynthTrigger } from '../types/synth.types';
+import { SynthEvent, SynthInstrument, SynthInstrumentType, SynthSequence, SynthSequenceEvent, SynthSong, SynthTrigger } from '../types/synth.types';
+
+
+export const synthInstrumentTypeMap:Record<SynthInstrumentType, { class:any, label:string }> = {
+	'synth': { class: Tone.Synth, label: 'Synth' },
+	'am': { class: Tone.AMSynth, label: 'AM' },
+	'fm': { class: Tone.FMSynth, label: 'FM' },
+	'membrane': { class: Tone.MembraneSynth, label: 'Membrane' },
+	'metal': { class: Tone.MetalSynth, label: 'Metal' },
+	'mono': { class: Tone.MonoSynth, label: 'Mono' },
+	'noise': { class: Tone.NoiseSynth, label: 'Noise' },
+	'pluck': { class: Tone.PluckSynth, label: 'Pluck' },
+	'poly': { class: Tone.PolySynth, label: 'Poly' },
+};
 
 
 @Injectable( {
@@ -13,7 +27,7 @@ export class SynthService{
 
 
 	public events = new EventEmitter<SynthEvent>();
-	public stateChange = new BehaviorSubject<Tone.PlaybackState>('stopped');
+	public stateChange = new BehaviorSubject<Tone.PlaybackState>( 'stopped' );
 
 	/** song is the "source of truth" for everything */
 	public song:SynthSong;
@@ -26,6 +40,7 @@ export class SynthService{
 
 	/** references to instruments used in the song */
 	public instruments:SynthInstrument[] = [];
+	public instruments$ = new BehaviorSubject<SynthService['instruments']>( [] );
 
 	/** holds the Tone Instruments / synths related to our instruments */
 	public synths:Instrument<any>[] = [];
@@ -76,9 +91,9 @@ export class SynthService{
 			await Tone.start();
 			this.master = new Tone.Gain().toDestination();
 
-			Tone.Transport.on('start', ()=> this.stateChange.next('started'));
-			Tone.Transport.on('pause', ()=> this.stateChange.next('paused'));
-			Tone.Transport.on('stop', ()=> this.stateChange.next('stopped'));
+			Tone.Transport.on( 'start', () => this.stateChange.next( 'started' ) );
+			Tone.Transport.on( 'pause', () => this.stateChange.next( 'paused' ) );
+			Tone.Transport.on( 'stop', () => this.stateChange.next( 'stopped' ) );
 
 			Tone.Transport.bpm.value = 200;
 
@@ -119,10 +134,9 @@ export class SynthService{
 
 	public addInstrument( instrument:SynthInstrument ):number{
 		this.instruments.push( instrument );
-		this.synths.push( instrument.synth );
+		const instrumentNum = this.instruments.length - 1;
 
-		// connect to audio
-		instrument.synth.connect( this.master );
+		const synth = this._updateInstrumentSynth( instrumentNum );
 
 		this.song.tracks.push( {
 			instrument,
@@ -132,7 +146,9 @@ export class SynthService{
 
 		this._updateMatrix();
 
-		return this.instruments.length - 1;
+		this.instruments$.next( this.instruments );
+
+		return instrumentNum;
 	}
 
 
@@ -181,10 +197,16 @@ export class SynthService{
 
 
 	/** updates the matrix based on the song data */
-	private _updateMatrix(){
-		this.playbackMatrix = [];
+	private _updateMatrix( onlyInstrument?:number){
+		if( onlyInstrument == null)
+			this.playbackMatrix = [];
+		else
+			this._removeInstrumentFromMatrix( onlyInstrument );
 
 		for( const [ trackNum, track ] of Object.entries( this.song.tracks ) ){
+			if( onlyInstrument != null && onlyInstrument !== +trackNum )
+				continue;
+
 			for( const [ seqNum, sequence ] of Object.entries( track.sequences ) ){
 				if( !this.playbackMatrix[+seqNum] )
 					this.playbackMatrix[+seqNum] = [];
@@ -213,6 +235,11 @@ export class SynthService{
 	private _removeInstrumentFromMatrixSequence( instrument:number, sequence:number ){
 		for( const stepNum of Object.keys( this.playbackMatrix[sequence] ) )
 			this._removeInstrumentFromMatrixStep( instrument, sequence, +stepNum );
+	}
+
+	private _removeInstrumentFromMatrix( instrument:number ){
+		for( const seqNum of Object.keys( this.playbackMatrix ) )
+			this._removeInstrumentFromMatrixSequence( instrument, +seqNum );
 	}
 
 
@@ -261,6 +288,7 @@ export class SynthService{
 	/** for directly triggering an instrument outside of Transport schedule */
 	public triggerInstrument( instrumentNum:number, trigger:SynthTrigger = {} ){
 		const instrument = this.instruments[instrumentNum];
+		const synth = this.synths[instrumentNum];
 		const time = Tone.now();
 
 		Tone.Draw.schedule(
@@ -268,11 +296,11 @@ export class SynthService{
 			time,
 		);
 
-		this._triggerSynth( instrument, trigger, time );
+		this._triggerSynth( synth, trigger, time );
 	}
 
-	private _triggerSynth( instrument:SynthInstrument, trigger:SynthTrigger, sequence?:number, step?:number, time?:Tone.Unit.Time ){
-		instrument.synth.triggerAttackRelease(
+	private _triggerSynth( synth:Instrument<any>, trigger:SynthTrigger, sequence?:number, step?:number, time?:Tone.Unit.Time ){
+		synth.triggerAttackRelease(
 			trigger.note || 'C4',
 			trigger.duration || this.defaultTriggerDuration,
 			time,
@@ -301,7 +329,7 @@ export class SynthService{
 					if( stepEvents )
 						for( const seqEvent of stepEvents ){
 							this._triggerSynth(
-								this.instruments[seqEvent.instrument],
+								this.synths[seqEvent.instrument],
 								seqEvent.event.trigger,
 								sequence,
 								step,
@@ -345,11 +373,11 @@ export class SynthService{
 	public static defaultInstruments():SynthInstrument[]{
 		const instruments:SynthInstrument[] = [];
 
-
-
 		instruments.push( {
 			label: 'kick',
-			synth: new Tone.MembraneSynth( {
+			type: 'membrane',
+			class: Tone.MembraneSynth,
+			options: <MembraneSynthOptions> {
 				pitchDecay: 0.008,
 				octaves: 1,
 				envelope: {
@@ -357,14 +385,14 @@ export class SynthService{
 					decay: 0.5,
 					sustain: 0,
 				},
-			} ),
+			},
 		} );
-
-
 
 		instruments.push( {
 			label: 'Harmonics',
-			synth: new Tone.AMSynth( {
+			type: 'am',
+			class: Tone.AMSynth,
+			options: <AMSynthOptions> {
 				'harmonicity': 3.999,
 				'oscillator': {
 					'type': 'square',
@@ -385,12 +413,14 @@ export class SynthService{
 					'sustain': 0.8,
 					'release': 0.1,
 				},
-			} ),
+			},
 		} );
 
 		instruments.push( {
 			label: 'wind',
-			synth: new Tone.Synth( {
+			type: 'synth',
+			class: Tone.Synth,
+			options: <SynthOptions> {
 				'portamento': 0.0,
 				'oscillator': {
 					'type': 'square4',
@@ -401,7 +431,7 @@ export class SynthService{
 					'sustain': 0.2,
 					'release': 2,
 				},
-			} ),
+			},
 		} );
 
 
@@ -425,28 +455,32 @@ export class SynthService{
 
 		instruments.push( {
 			label: 'kalimba',
-			synth: new Tone.PolySynth( Tone.FMSynth, {
-				'harmonicity': 8,
-				'modulationIndex': 2,
-				'oscillator': {
-					'type': 'sine',
+			type: 'poly',
+			class: Tone.PolySynth,
+			options: <any> {
+				options: {
+					'harmonicity': 8,
+					'modulationIndex': 2,
+					'oscillator': {
+						'type': 'sine',
+					},
+					'envelope': {
+						'attack': 0.001,
+						'decay': 2,
+						'sustain': 0.1,
+						'release': 2,
+					},
+					'modulation': {
+						'type': 'square',
+					},
+					'modulationEnvelope': {
+						'attack': 0.002,
+						'decay': 0.2,
+						'sustain': 0,
+						'release': 0.2,
+					},
 				},
-				'envelope': {
-					'attack': 0.001,
-					'decay': 2,
-					'sustain': 0.1,
-					'release': 2,
-				},
-				'modulation': {
-					'type': 'square',
-				},
-				'modulationEnvelope': {
-					'attack': 0.002,
-					'decay': 0.2,
-					'sustain': 0,
-					'release': 0.2,
-				},
-			} ),
+			},
 		} );
 
 		return instruments;
@@ -458,27 +492,27 @@ export class SynthService{
 
 		const durations:Record<string, Tone.Unit.Time> = { s: '16n', i: '8n', q: '4n', h: '2n', n: '1n', N: '1m' };
 		const jingles = [
-			[ 'D5q', 'B4q', 'A4h',, 'B4h', 'A4h' ],
-			[ 'C5q', 'E5i', 'G5i', ,,'C6i' ],
+			[ 'D5q', 'B4q', 'A4h', , 'B4h', 'A4h' ],
+			[ 'C5q', 'E5i', 'G5i', , , 'C6i' ],
 		];
 
-		const synth = new Tone.DuoSynth({
-/*
-			voice0:{
-				"oscillator": {
-					"type": "pulse",
-					"width" : 0.8
-				},
-				"envelope": {
-					"attack": 0.01,
-					"decay": 0.05,
-					"sustain": 0.2,
-					"releaseCurve" : "bounce",
-					"release": 0.4
-				},
-			}
-*/
-		}).toDestination();
+		const synth = new Tone.DuoSynth( {
+			/*
+						voice0:{
+							"oscillator": {
+								"type": "pulse",
+								"width" : 0.8
+							},
+							"envelope": {
+								"attack": 0.01,
+								"decay": 0.05,
+								"sustain": 0.2,
+								"releaseCurve" : "bounce",
+								"release": 0.4
+							},
+						}
+			*/
+		} ).toDestination();
 
 		const notes = jingles[1];
 		let time = Tone.now();
@@ -488,22 +522,52 @@ export class SynthService{
 				str = 'i';
 
 			if( str.length === 1 ){ // just a break
-				time = time + Tone.Time(durations[str]).toSeconds();
+				time = time + Tone.Time( durations[str] ).toSeconds();
 				return;
 			}
 
 			const [ note, durationKey ] = [ str.substring( 0, 2 ), str.slice( -1 ) ];
 			const duration = durations[durationKey];
 
-			synth.triggerAttackRelease( note, duration, time);
+			synth.triggerAttackRelease( note, duration, time );
 
-			time = time + Tone.Time(duration).toSeconds();
+			time = time + Tone.Time( duration ).toSeconds();
 		} );
 
 	}
 
 	public getContext(){
 		return Tone.getContext();
+	}
+
+	public updateInstrument( instrumentNum:number, changes:SynthInstrument ){
+		Object.assign( this.instruments[instrumentNum], changes );
+		this._updateInstrumentSynth( instrumentNum );
+
+		this.instruments$.next( this.instruments );
+	}
+
+	private _updateInstrumentSynth( instrumentNum:number ):Instrument<any>{
+		// cleanup existing
+		if( this.synths[instrumentNum] ){
+			this._removeInstrumentFromMatrix( instrumentNum );
+			this.synths[instrumentNum].disconnect();
+			this.synths[instrumentNum].dispose();
+			delete this.synths[instrumentNum];
+		}
+
+		const instrument = this.instruments[instrumentNum];
+
+		const synth = new ( instrument.class )( instrument.options );
+		this.synths[instrumentNum] = synth;
+
+		// connect to master lane
+		synth.connect( this.master );
+
+		this._updateMatrix( instrumentNum );
+		this._updateTone();
+
+		return synth;
 	}
 
 }

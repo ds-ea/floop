@@ -1,0 +1,136 @@
+.floop-display .screen{
+	ion-list{
+		--ion-border-color: #000000;
+		padding: 0;
+
+		&.transparent{
+			--background: transparent;
+			--ion-item-background: transparent;
+
+			ion-item{
+			}
+		}
+	}
+
+	ion-item{
+		--border-width: 0 0 4px 0 !important;
+
+		.inner-grid{
+			display: flex;
+
+			> ion-label{
+				flex-shrink: 0;
+				margin-inline-end: var(--flp-ui-gutter);
+			}
+		}
+	}
+
+	ion-segment{
+		&.multi-line{
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			justify-items: flex-start;
+
+			width: 100%;
+
+			ion-segment-button{
+				width: 33%;
+			}
+		}
+	}
+
+	ion-label{
+		&.segment-margin{
+			margin-block-start: 13px;
+		}
+	}
+
+
+	hr{
+		background-color: var(--flp-ui-fg);
+		height: 1px;
+		opacity: .2;
+		margin-block-start: calc( var(--flp-ui-gutter) * 2 );
+		margin-block-end: calc( var(--flp-ui-gutter) * 2 );
+	}
+
+
+	header{
+		position: relative;
+		h1{
+			font-size: inherit;
+			margin:0;
+		}
+		padding-block-end: calc( var(--flp-ui-gutter) * .5);
+		margin-block-end: var(--flp-ui-gutter);
+
+		&:after{
+			position: absolute;
+			bottom: 0;
+			display: block;
+			content: '';
+			width: 100%;
+			height: 1px;
+			opacity: .2;
+			background-color: var(--flp-ui-fg);
+		}
+	}
+}
+
+.screen-nav{
+	flex-shrink: 1;
+
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+
+	margin-inline-start: var(--flp-ui-gutter);
+
+	ul{
+		flex-grow: 1;
+
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		justify-content: space-evenly;
+
+		list-style-type: none;
+
+		margin: 0;
+		padding: var(--flp-ui-nav-pad);
+
+		background-color: var(--flp-ui-nav-bg);
+		color: var(--flp-ui-nav-fg);
+		border-radius: var(--flp-ui-nav-radius);
+
+		li{
+			text-transform: uppercase;
+			text-align: center;
+		}
+
+		a{
+			display: flex;
+			justify-content: center;
+			align-items: center;
+
+			padding: calc(var(--flp-ui-nav-pad) * .5) var(--flp-ui-nav-pad);
+
+			appearance: none;
+			background: transparent;
+			color: inherit;
+			opacity: 1;
+
+			font-family: var(--flp-btn-font);
+			text-transform: uppercase;
+
+			border: 1px solid transparent;
+			border-radius: 2px;
+
+			&.active{
+				border-color: currentColor;
+			}
+		}
+
+	}
+}

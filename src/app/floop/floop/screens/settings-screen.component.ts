@@ -17,14 +17,6 @@ import { FloopSettings } from '../../types/floop.types';
 
 			justify-content: flex-start;
 		}
-		ion-list{
-			--ion-border-color: #000000;
-			padding: 0;
-		}
-		ion-item{
-			--border-width: 0 0 4px 0 !important;
-		}
-
 	`],
 	template: `
 
@@ -50,14 +42,6 @@ import { FloopSettings } from '../../types/floop.types';
 					<ion-icon slot="end" name="volume-high"></ion-icon>
 				</ion-range>
 			</ion-item>
-
-			<ion-item >
-				<input-stepper [(ngModel)]="bpm"
-							   (ngModelChange)="setBPM($event)"
-							   [min]="1"
-							   label="BPM"
-				></input-stepper>
-			</ion-item>
 		</ion-list>
 
 	`,
@@ -68,15 +52,11 @@ export class SettingsScreenComponent implements OnInit{
 
 	public settings:FloopSettings = {};
 
-	public bpm:number;
-
 	constructor(
 		public floopDevice:FloopDeviceService,
 		public synth:SynthService,
 		public cdr:ChangeDetectorRef
 	){
-		this.bpm = this.synth.bpm;
-
 		this.floopDevice.settingsChanged
 			.pipe(takeUntilDestroyed())
 			.subscribe( settings => {
@@ -99,8 +79,5 @@ export class SettingsScreenComponent implements OnInit{
 		this.floopDevice.settings = this.settings;
 	}
 
-	public setBPM(bpm:number){
-		this.synth.bpm = bpm;
-	}
 
 }

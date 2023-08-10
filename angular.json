@@ -37,7 +37,7 @@
               }
             ],
 			"styles": ["src/theme/ionic/variables.scss", "src/theme/ionic/global.scss", "src/theme/floop/floop.scss"],
-            "scripts": [],
+            "scripts": ["node_modules/woscope/dist/woscope.js"],
             "allowedCommonJsDependencies": [
               "tone",
 			  "automation-events"
@@ -122,7 +122,7 @@
               }
             ],
 			"styles": ["src/theme/ionic/variables.scss", "src/theme/ionic/global.scss", "src/theme/floop/floop.scss"],
-            "scripts": []
+            "scripts": ["node_modules/woscope/dist/woscope.js"]
           },
           "configurations": {
             "ci": {

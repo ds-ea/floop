@@ -21,10 +21,21 @@ $useFrame: false;
 
 	--flp-display-bg: #000;
 	--flp-display-radius: 4px;
+	--flp-display-dynamic-radius: 8px;
 	--flp-display-shadow: 2px 2px 6px rgba(0,0,0,.5);
 	--flp-display-gap: 20px;
 
 	--flp-display-panel-gap: 10px;
+
+	--flp-ui-gutter: 10px;
+
+	--flp-screen-bg: #000;
+	--flp-ui-fg: #fff;
+
+	--flp-ui-nav-radius: var(--flp-display-dynamic-radius);
+	--flp-ui-nav-bg: #171717;
+	--flp-ui-nav-fg: #737373;
+	--flp-ui-nav-pad: 5px;
 
 
 	@if not $useFrame {

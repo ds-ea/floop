@@ -16,11 +16,18 @@
 				 [class.on]="ready"
 		>
 			<div class="retro"></div>
-			<div class="panel">
+			<div class="screen">
 				<boot-screen *ngIf="dynamicContent==='boot'" (ready)="bootReady()"></boot-screen>
-				<settings-screen *ngIf="dynamicContent==='settings'" ></settings-screen>
-				<viz-screen *ngIf="dynamicContent==='viz'" ></viz-screen>
-				<instrument-screen *ngIf="dynamicContent==='instrument'" ></instrument-screen>
+				<settings-screen *ngIf="dynamicContent==='settings'"></settings-screen>
+
+				<viz-screen *ngIf="dynamicContent==='viz'"></viz-screen>
+
+				<song-screen *ngIf="dynamicContent==='song'"></song-screen>
+				<instrument-screen
+						*ngIf="dynamicContent==='instrument'"
+						[instrument]="currentInstrument"
+				></instrument-screen>
+
 			</div>
 		</section>
 
@@ -29,7 +36,7 @@
 				 [class.on]="ready && bootDone"
 		>
 			<div class="retro"></div>
-			<div class="panel">
+			<div class="screen">
 				<div *ngFor="let btn of controlButtons"
 					 [ngClass]="['btn', btn.type, btn.on ? 'on' : 'off' ]"
 					 [class.blink]="btn.blink"
@@ -48,7 +55,7 @@
 				 [class.on]="ready && bootDone"
 		>
 			<div class="retro"></div>
-			<div class="panel">
+			<div class="screen">
 				<div *ngFor="let btn of sequencerButtons ; trackBy: trackButtonNumber"
 					 [ngClass]="['btn', btn.type, btn.hl ? 'hl' : '', btn.on ? 'on' : 'off' ]"
 					 [attr.data-btn-num]="btn.num"

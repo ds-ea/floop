@@ -137,7 +137,7 @@ export class FloopView implements OnInit{
 
 	public bootReady(){
 		this.bootDone = true;
-		this.dynamicContent = 'viz';
+		this.dynamicContent = 'instrument';
 		this.cdr.markForCheck();
 	}
 
@@ -280,7 +280,9 @@ export class FloopView implements OnInit{
 			throw new Error( 'step count mismatch during button init' );
 
 
+		///////////////////////////
 		// set controls
+
 		const playPauseButton = this.sequencerMatrix[rowCount - 1][0];
 		Object.assign( playPauseButton, {
 			label: 'playpause',
@@ -301,9 +303,9 @@ export class FloopView implements OnInit{
 		});
 
 		Object.assign( this.sequencerMatrix[rowCount - 1][colCount - 1], {
-			label: 'reverse',
-			icon: 'swap-horizontal',
-			action: () => this.dir *= -1,
+			label: 'song',
+			icon: 'musical-notes',
+			action: () => this.dynamicContent = 'song',
 		} );
 
 		Object.assign( this.sequencerMatrix[0][0], {
@@ -317,6 +319,15 @@ export class FloopView implements OnInit{
 			icon: 'settings-sharp',
 			action: () => this.dynamicContent = 'settings',
 		} );
+
+
+		// listen for instrument changes
+		this.synth.instruments$
+			.pipe(takeUntilDestroyed())
+			.subscribe( instruments => {
+				if( instruments )
+					this._updateInstruments();
+			} );
 
 	}
 

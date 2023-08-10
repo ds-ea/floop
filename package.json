@@ -24,6 +24,7 @@
     "@capacitor-community/native-audio": "^5.0.1",
     "@capacitor/app": "5.0.6",
     "@capacitor/core": "5.2.2",
+    "@capacitor/device": "^5.0.6",
     "@capacitor/haptics": "5.0.6",
     "@capacitor/ios": "5.2.2",
     "@capacitor/keyboard": "5.0.6",
@@ -34,6 +35,7 @@
     "rxjs": "~7.8.0",
     "tone": "^14.8.49",
     "tslib": "^2.3.0",
+    "woscope": "github:m1el/woscope",
     "zone.js": "~0.13.0"
   },
   "devDependencies": {
