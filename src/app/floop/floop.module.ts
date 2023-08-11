@@ -8,6 +8,7 @@ import { InputStepperComponent } from './floop/components/input-stepper.componen
 import { BootScreenComponent } from './floop/screens/boot-screen.component';
 import { InstrumentScreenComponent } from './floop/screens/instrument/instrument-screen.component';
 import { InstrumentPage } from './floop/screens/instrument/instrument.page';
+import { OscillatorPage } from './floop/screens/instrument/oscillator.page';
 import { SettingsScreenComponent } from './floop/screens/settings-screen.component';
 import { SongScreenComponent } from './floop/screens/song-screen.component';
 import { VizScreenComponent } from './floop/screens/viz-screen.component';
@@ -29,12 +30,15 @@ import { SynthService } from './services/synth.service';
 		InputStepperComponent,
 
 		FloopView,
+
 		BootScreenComponent,
 		SettingsScreenComponent,
 		SongScreenComponent,
 		VizScreenComponent,
+
 		InstrumentScreenComponent,
 		InstrumentPage,
+		OscillatorPage,
 	],
 	providers: [
 		SynthService,

@@ -9,7 +9,7 @@ export type SynthInstrumentType =
 	| 'membrane'
 	| 'metal'
 	| 'mono'
-	| 'noise'
+//	| 'noise'
 	| 'pluck'
 	| 'poly'
 	;

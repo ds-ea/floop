@@ -6,7 +6,7 @@ import { FloopDisplayInstrumentPageComponent } from './instrument-screen.compone
 
 
 @Component( {
-	selector: 'instrument-page',
+	selector: 'oscillator-page',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<header>
@@ -25,17 +25,8 @@ import { FloopDisplayInstrumentPageComponent } from './instrument-screen.compone
 				</ion-item>
 				<ion-item>
 					<div class="inner-grid">
-						<ion-label class="segment-margin">Type</ion-label>
-						<ion-segment
-								[(ngModel)]="instrumentType"
-								(ngModelChange)="changeType()"
-								class="multi-line"
-						>
-							<ion-segment-button
-									*ngFor="let item of instrumentTypes | keyvalue"
-									[value]="item.key"
-							>{{item.value.label}}</ion-segment-button>
-						</ion-segment>
+
+
 					</div>
 				</ion-item>
 			</ion-list>
@@ -44,13 +35,10 @@ import { FloopDisplayInstrumentPageComponent } from './instrument-screen.compone
 	`,
 } )
 
-export class InstrumentPage implements FloopDisplayInstrumentPageComponent, OnInit, OnChanges{
-	public instrumentTypes = synthInstrumentTypeMap;
-
+export class OscillatorPage implements FloopDisplayInstrumentPageComponent, OnInit, OnChanges{
 	@Input() instrument:SynthInstrument | undefined;
 	@Output() instrumentChange = new EventEmitter<SynthInstrument | undefined>;
 
-	public instrumentType:SynthInstrumentType | undefined;
 
 	constructor(
 		private cdr:ChangeDetectorRef,
@@ -61,13 +49,12 @@ export class InstrumentPage implements FloopDisplayInstrumentPageComponent, OnIn
 	}
 
 	public ngOnInit():void{
-		this.instrumentType = this.instrument?.type;
 	}
 
 
 	public ngOnChanges( changes:SimpleChanges ):void{
 		if( 'instrument' in changes ){
-			this.instrumentType = this.instrument?.type;
+//			this.instrumentType = this.instrument?.type;
 			this.cdr.markForCheck();
 		}
 	}
@@ -77,11 +64,11 @@ export class InstrumentPage implements FloopDisplayInstrumentPageComponent, OnIn
 		if( !this.instrument )
 			return;
 
-		if( !this.instrumentType || !this.instrumentTypes[this.instrumentType] )
-			throw new Error( 'unsupported instrument type selected' );
-
-		this.instrument.type = this.instrumentType;
-		this.instrument.class = this.instrumentTypes[this.instrumentType].class;
+//		if( !this.instrumentType || !this.instrumentTypes[this.instrumentType] )
+//			throw new Error( 'unsupported instrument type selected' );
+//
+//		this.instrument.type = this.instrumentType;
+//		this.instrument.class = this.instrumentTypes[this.instrumentType].class;
 		this.out();
 	}
 }

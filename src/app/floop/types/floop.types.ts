@@ -24,3 +24,7 @@ export type FloopSettings = {
 	quickBoot?:boolean;
 	deviceVolume?:number;
 }
+
+export type FloopMemory = {
+	lastInstrumentPage?:string;
+};

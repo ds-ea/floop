@@ -14,7 +14,8 @@ export const synthInstrumentTypeMap:Record<SynthInstrumentType, { class:any, lab
 	'membrane': { class: Tone.MembraneSynth, label: 'Membrane' },
 	'metal': { class: Tone.MetalSynth, label: 'Metal' },
 	'mono': { class: Tone.MonoSynth, label: 'Mono' },
-	'noise': { class: Tone.NoiseSynth, label: 'Noise' },
+	// TODO: noise needs extra handling
+//	'noise': { class: Tone.NoiseSynth, label: 'Noise' },
 	'pluck': { class: Tone.PluckSynth, label: 'Pluck' },
 	'poly': { class: Tone.PolySynth, label: 'Poly' },
 };
@@ -513,6 +514,7 @@ export class SynthService{
 						}
 			*/
 		} ).toDestination();
+		synth.volume.value = -8;
 
 		const notes = jingles[1];
 		let time = Tone.now();
