@@ -42,9 +42,11 @@ export class SynthService{
 	/** references to instruments used in the song */
 	public instruments:SynthInstrument[] = [];
 	public instruments$ = new BehaviorSubject<SynthService['instruments']>( [] );
+	public synthInstrumentUpdate$ = new EventEmitter<{track:number, instrument:SynthInstrument, synth:Instrument<any>}>();
 
 	/** holds the Tone Instruments / synths related to our instruments */
 	public synths:Instrument<any>[] = [];
+	public synths$ = new BehaviorSubject<SynthService['synths']>( [] );
 
 	public stepDuration:Tone.Unit.Time = '4n';
 	public defaultTriggerDuration:Tone.Unit.Time = '8n';
@@ -137,7 +139,7 @@ export class SynthService{
 		this.instruments.push( instrument );
 		const instrumentNum = this.instruments.length - 1;
 
-		const synth = this._updateInstrumentSynth( instrumentNum );
+		this._updateInstrumentSynth( instrumentNum );
 
 		this.song.tracks.push( {
 			instrument,
@@ -547,6 +549,12 @@ export class SynthService{
 		this._updateInstrumentSynth( instrumentNum );
 
 		this.instruments$.next( this.instruments );
+
+		this.synthInstrumentUpdate$.emit({
+			track: instrumentNum,
+			instrument: this.instruments[instrumentNum],
+			synth: this.synths[instrumentNum]
+		});
 	}
 
 	private _updateInstrumentSynth( instrumentNum:number ):Instrument<any>{
@@ -568,6 +576,8 @@ export class SynthService{
 
 		this._updateMatrix( instrumentNum );
 		this._updateTone();
+
+		this.synths$.next( this.synths );
 
 		return synth;
 	}

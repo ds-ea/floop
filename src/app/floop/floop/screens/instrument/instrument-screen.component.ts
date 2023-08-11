@@ -1,6 +1,8 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ComponentRef, DestroyRef, Directive, EventEmitter, Injector, Input, OnChanges, OnInit, SimpleChange, SimpleChanges, TemplateRef, Type, ViewChild, ViewContainerRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Preferences } from '@capacitor/preferences';
+import { filter } from 'rxjs';
+import { Instrument } from 'tone/build/esm/instrument/Instrument';
 import { CompOutDirective } from '../../../directives/comp-out.directive';
 import { FloopDeviceService } from '../../../services/floop-device.service';
 import { SynthService } from '../../../services/synth.service';
@@ -13,6 +15,7 @@ import { OscillatorPage } from './oscillator.page';
 export interface FloopDisplayInstrumentPageComponent extends OnChanges{
 	instrument:SynthInstrument | undefined;
 	instrumentChange?:EventEmitter<SynthInstrument | undefined>;
+	instrSynth?:Instrument<any>;
 }
 
 type FloopDisplayPage = {
@@ -49,6 +52,8 @@ export class InstrumentScreenComponent implements OnInit, OnChanges, AfterViewIn
 
 	@Input( 'instrument' ) instrumentNum:number | undefined;
 	public instrument:SynthInstrument | undefined;
+	public instrSynth:Instrument<any> | undefined;
+
 
 	public currentPage:FloopDisplayPage | undefined;
 	public pages:FloopDisplayPage[] = [
@@ -70,10 +75,27 @@ export class InstrumentScreenComponent implements OnInit, OnChanges, AfterViewIn
 		private floopDevice:FloopDeviceService
 	){
 		this._restorePage = this.floopDevice.memory.lastInstrumentPage || 'instrument';
+
+		this.synth.synthInstrumentUpdate$
+			.pipe(
+				takeUntilDestroyed(),
+				filter( ( { track }) => track === this.instrumentNum )
+			)
+			.subscribe( update => {
+				this.instrSynth = update.synth;
+				if( this._pageInstance?.instance ){
+					this._pageInstance.instance.instrSynth = this.instrSynth;
+					const changes:SimpleChanges = {
+						instrument: new SimpleChange(this._pageInstance.instance.instrument, this.instrument, false),
+						instrSynth: new SimpleChange( undefined, this.instrSynth, false)
+					};
+					this._pageInstance.instance.ngOnChanges(changes);
+				}
+				this.cdr.markForCheck();
+			});
 	}
 
 	ngOnInit(){
-
 	}
 
 	public ngOnChanges( changes:SimpleChanges ):void{
@@ -87,15 +109,18 @@ export class InstrumentScreenComponent implements OnInit, OnChanges, AfterViewIn
 
 	private _loadInstrument( instrumentNum:number | undefined ){
 		this.instrument = this.synth.instruments[instrumentNum!];
+		this.instrSynth = this.synth.synths[instrumentNum!];
 
 		if( !this.currentPage )
 			this.selectPage( this.pages.find( p => p.id === this._restorePage) || this.pages[0] );
 
 		if( this._pageInstance ){
 			this._pageInstance.instance.instrument = this.instrument;
+			this._pageInstance.instance.instrSynth = this.instrSynth;
 
 			const changes:SimpleChanges = {
-				instrument: new SimpleChange(this._pageInstance.instance.instrument, this.instrument, false)
+				instrument: new SimpleChange(this._pageInstance.instance.instrument, this.instrument, false),
+				instrSynth: new SimpleChange( undefined, this.instrSynth, false)
 			};
 			this._pageInstance.instance.ngOnChanges(changes);
 
@@ -118,6 +143,8 @@ export class InstrumentScreenComponent implements OnInit, OnChanges, AfterViewIn
 
 		this._pageInstance = vcr.createComponent<FloopDisplayInstrumentPageComponent>( page.component, {injector: this.injector } );
 		this._pageInstance.instance['instrument'] = this.instrument;
+		this._pageInstance.instance['instrSynth'] = this.instrSynth;
+
 		if( this._pageInstance.instance.instrumentChange )
 			this._pageInstance.instance.instrumentChange
 				.pipe( takeUntilDestroyed(this.destroyRef) )

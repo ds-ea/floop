@@ -16,3 +16,29 @@ instrument-screen{
 
 
 }
+
+
+oscillator-page{
+
+	.viz{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		padding:  var(--flp-ui-gutter) calc( var(--flp-ui-gutter) *2);
+		margin-block-end: var(--flp-ui-gutter);
+
+		height: 100px;
+
+		border-bottom: 1px solid var(--flp-ui-divider-color);
+	}
+
+	.config-wrap{
+		padding:  var(--flp-ui-gutter) calc( var(--flp-ui-gutter) *2);
+		display: flex;
+		justify-content: center;
+	}
+
+	.config-grid{
+	}
+}
