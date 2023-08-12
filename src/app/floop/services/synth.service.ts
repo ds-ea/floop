@@ -1,4 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
+import { Preferences } from '@capacitor/preferences';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { AMSynthOptions, FMSynth, FMSynthOptions, MembraneSynthOptions, PolySynthOptions, SynthOptions } from 'tone';
 
@@ -582,4 +583,47 @@ export class SynthService{
 		return synth;
 	}
 
+	public async resetSong(){
+		for( const track of this.song.tracks ){
+			track.sequences = [];
+		}
+		this._updateMatrix();
+		this._updateTone();
+	}
+
+	public async saveSong(){
+		const buffer = JSON.stringify( this.song );
+		return Preferences.set({key:'floop.song.0', value: buffer});
+	}
+
+
+	public async loadSong( num = 0 ){
+		const { value:buffer } = await Preferences.get({key:'floop.song.'+ num });
+		if( !buffer )
+			throw new Error('no such song');
+
+		try{
+			const data = JSON.parse(buffer);
+			this.importSong( data );
+
+		}catch( error ){
+			console.error('problem parsing song data', error);
+			throw new Error('song data invalid');
+		}
+
+		return this.song;
+	}
+
+	private importSong( data:SynthSong ){
+		this.stop();
+
+		this.song = data;
+		this._recreateInstruments();
+		this._updateMatrix();
+		this._updateTone();
+	}
+
+	private _recreateInstruments(){
+		// CONTINUE
+	}
 }
