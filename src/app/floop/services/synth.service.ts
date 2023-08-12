@@ -8,16 +8,16 @@ import { SynthEvent, SynthInstrument, SynthInstrumentType, SynthSequence, SynthS
 
 
 export const synthInstrumentTypeMap:Record<SynthInstrumentType, { class:any, label:string }> = {
+	// TODO: disabled ones need extra configuration support
 	'synth': { class: Tone.Synth, label: 'Synth' },
 	'am': { class: Tone.AMSynth, label: 'AM' },
 	'fm': { class: Tone.FMSynth, label: 'FM' },
 	'membrane': { class: Tone.MembraneSynth, label: 'Membrane' },
 	'metal': { class: Tone.MetalSynth, label: 'Metal' },
 	'mono': { class: Tone.MonoSynth, label: 'Mono' },
-	// TODO: noise needs extra handling
 //	'noise': { class: Tone.NoiseSynth, label: 'Noise' },
-	'pluck': { class: Tone.PluckSynth, label: 'Pluck' },
-	'poly': { class: Tone.PolySynth, label: 'Poly' },
+//	'pluck': { class: Tone.PluckSynth, label: 'Pluck' },
+//	'poly': { class: Tone.PolySynth, label: 'Poly' },
 };
 
 
@@ -458,7 +458,7 @@ export class SynthService{
 
 		instruments.push( {
 			label: 'kalimba',
-			type: 'poly',
+			type: 'synth',
 			class: Tone.PolySynth,
 			options: <any> {
 				options: {

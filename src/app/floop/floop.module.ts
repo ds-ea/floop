@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { CompOutDirective } from './directives/comp-out.directive';
 import { InputStepperComponent } from './floop/components/input-stepper.component';
 import { BootScreenComponent } from './floop/screens/boot-screen.component';
+import { EnvelopePage } from './floop/screens/instrument/envelope.page';
 import { InstrumentScreenComponent } from './floop/screens/instrument/instrument-screen.component';
 import { InstrumentPage } from './floop/screens/instrument/instrument.page';
 import { OscillatorPage } from './floop/screens/instrument/oscillator.page';
@@ -39,6 +40,7 @@ import { SynthService } from './services/synth.service';
 		InstrumentScreenComponent,
 		InstrumentPage,
 		OscillatorPage,
+		EnvelopePage,
 	],
 	providers: [
 		SynthService,

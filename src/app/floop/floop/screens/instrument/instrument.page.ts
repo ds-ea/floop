@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Synth } from 'tone';
 import { synthInstrumentTypeMap } from '../../../services/synth.service';
 import { SynthInstrument, SynthInstrumentType } from '../../../types/synth.types';
 import { FloopDisplayInstrumentPageComponent } from './instrument-screen.component';
 
-
+import * as Tone from 'tone/build/esm';
 
 @Component( {
 	selector: 'instrument-page',
@@ -38,6 +39,26 @@ import { FloopDisplayInstrumentPageComponent } from './instrument-screen.compone
 						</ion-segment>
 					</div>
 				</ion-item>
+				<ion-item>
+					<div slot="end">
+						{{volume|number:'1.0-0'}} dB
+						<ion-icon *ngIf="volume!=null"
+								  [name]="
+								volume < -15 ? 'volume-off' : (
+								volume < -10 ? 'volume-low' : (
+								volume < -2 ? 'volume-medium' : 'volume-high'
+								))
+						"></ion-icon>
+					</div>
+					<ion-range aria-label="Volume"
+							   labelPlacement="start" label="Volume"
+							   [(ngModel)]="volume"
+							   (ngModelChange)="setInstrumentValue($event)"
+							   min="-20" max="5"
+							   step="1"
+					>
+					</ion-range>
+				</ion-item>
 			</ion-list>
 
 		</ng-container>
@@ -50,7 +71,10 @@ export class InstrumentPage implements FloopDisplayInstrumentPageComponent, OnIn
 	@Input() instrument:SynthInstrument | undefined;
 	@Output() instrumentChange = new EventEmitter<SynthInstrument | undefined>;
 
+	@Input() instrSynth?:Synth<any>;
+
 	public instrumentType:SynthInstrumentType | undefined;
+	public volume: Tone.Unit.Decibels | undefined;
 
 	constructor(
 		private cdr:ChangeDetectorRef,
@@ -70,6 +94,11 @@ export class InstrumentPage implements FloopDisplayInstrumentPageComponent, OnIn
 			this.instrumentType = this.instrument?.type;
 			this.cdr.markForCheck();
 		}
+		if( 'instrSynth' in changes ){
+			this.volume = this.instrSynth?.volume.value;
+			this.cdr.markForCheck();
+		}
+
 	}
 
 
@@ -82,6 +111,13 @@ export class InstrumentPage implements FloopDisplayInstrumentPageComponent, OnIn
 
 		this.instrument.type = this.instrumentType;
 		this.instrument.class = this.instrumentTypes[this.instrumentType].class;
+		this.out();
+	}
+
+	public setInstrumentValue( $event:any ){
+		if( !this.instrument || this.volume == null )
+			return;
+		this.instrument.options.volume = this.volume;
 		this.out();
 	}
 }

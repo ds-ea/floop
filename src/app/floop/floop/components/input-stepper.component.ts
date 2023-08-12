@@ -266,8 +266,8 @@ export class InputStepperComponent implements ControlValueAccessor{
 		if( this.direction === 'vertical' )
 			dist *= -1;
 
-		const valueChange = Math.round( dist / this.touchSensitivity ) * this.increment;
-		const newValue = this._clampValue( Math.round( this._touchStartValue! - valueChange ) );
+		const valueChange = ( dist / this.touchSensitivity ) * this.increment;
+		const newValue = this._clampValue( this._touchStartValue! - valueChange );
 		if( newValue != this.value )
 			Haptics.impact( { style: ImpactStyle.Light } );
 

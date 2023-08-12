@@ -42,3 +42,35 @@ oscillator-page{
 	.config-grid{
 	}
 }
+
+
+envelope-page{
+	--flp-ui-chart-color: var(--flp-ui-envelope-color);
+
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+
+	padding: 5% 10%;
+
+
+	.viz{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		height: 50%;
+
+	}
+
+	.config-grid{
+		height: 40%;
+
+		align-items: center;
+		justify-content: center;
+
+		lable{
+			padding: 0;
+		}
+	}
+}

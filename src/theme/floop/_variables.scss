@@ -1,9 +1,8 @@
-
 $breakpoints: (phone: 320px, tablet: 768px, desktop: 1024px);
 
 $useFrame: false;
 
-:root{
+:root {
 
 	--flp-body-bg: #000;
 	--flp-frame-font: Technicality1;
@@ -15,14 +14,14 @@ $useFrame: false;
 	--flp-frame-radius: 12px;
 	--flp-frame-pad: 30px;
 
-	--flp-frame-shadow: 0 0 50px rgba(0,0,0,.5);
-	--flp-frame-bevel: 2px 4px 6px rgba(118,118,118,.5);
+	--flp-frame-shadow: 0 0 50px rgba(0, 0, 0, .5);
+	--flp-frame-bevel: 2px 4px 6px rgba(118, 118, 118, .5);
 
 
 	--flp-display-bg: #000;
 	--flp-display-radius: 4px;
 	--flp-display-dynamic-radius: 8px;
-	--flp-display-shadow: 2px 2px 6px rgba(0,0,0,.5);
+	--flp-display-shadow: 2px 2px 6px rgba(0, 0, 0, .5);
 	--flp-display-gap: 20px;
 
 	--flp-display-panel-gap: 10px;
@@ -34,7 +33,10 @@ $useFrame: false;
 	--flp-ui-divider-color: #222;
 
 	--flp-ui-chart-color: var(--ion-color-primary);
-
+	--flp-ui-envelope-color: #FD2362; // ultra pink is defined below
+	@supports (color: #{'oklab(0 0 0)'}) {
+		--flp-ui-envelope-color: oklab(0.65 0.3 0.06);
+	}
 
 	--flp-ui-nav-radius: var(--flp-display-dynamic-radius);
 	--flp-ui-nav-bg: #171717;

@@ -90,14 +90,6 @@ const oscOptionsMapper:Record<string | 'fallback', {
 							   [(ngModel)]="oscillatorOptions.phase"
 							   (ngModelChange)="out()"
 				></input-stepper>
-
-				<label class="cell-1">amp</label>
-				<input-stepper class="cell-1 compact"
-							   [(ngModel)]="options.volume"
-							   (ngModelChange)="out()"
-							   [increment]="1"
-				></input-stepper>
-
 			</div>
 			<ng-template #noOscillator>
 				<div class="callout">no oscillator</div>
@@ -192,9 +184,6 @@ export class OscillatorPage implements FloopDisplayInstrumentPageComponent, OnIn
 			this.options = this.instrument.options as any;
 		}
 
-		this.options.volume = this.instrSynth.volume.value;
-
-
 		if( !this.options!.oscillator ){
 			this.options!.oscillator = {} as any;
 			this.oscillatorOptions = this.options!.oscillator as any;
@@ -286,6 +275,7 @@ export class OscillatorPage implements FloopDisplayInstrumentPageComponent, OnIn
 						y: { display: false, },
 					},
 					plugins: {
+						tooltip: {enabled: false},
 						legend: { display: false, },
 						title: { display: false, },
 					},

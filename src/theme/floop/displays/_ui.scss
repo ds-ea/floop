@@ -173,11 +173,6 @@
 
 .config-grid{
 
-	label{
-		text-align: right;
-		padding-right: calc( var(--flp-ui-gutter) *2);
-	}
-
 	flex-grow: 1;
 
 	display: grid;
@@ -186,10 +181,18 @@
 	align-items: center;
 	//grid-template-rows: ;
 
+	[class^=cell-]{
+		display: flex;
+	}
 	@for $i from 1 through 4 {
 		.cell-#{$i}{
 			grid-column: span #{$i};
 		}
+	}
+
+	label{
+		justify-self: flex-end;
+		padding-right: calc( var(--flp-ui-gutter) *2);
 	}
 
 	.grid-row{
@@ -198,6 +201,22 @@
 
 		&.full{
 			grid-column: span 4;
+		}
+	}
+
+	&.centered{
+		justify-items: center;
+
+		label{
+			text-align: center;
+			padding-right: initial;
+			padding-block-start: calc( var(--flp-ui-gutter));
+			padding-block-end: calc( var(--flp-ui-gutter));
+		}
+
+		[class^=cell-]{
+			flex-direction: column;
+			align-items: center;
 		}
 	}
 }

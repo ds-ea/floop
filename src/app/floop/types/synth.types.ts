@@ -10,8 +10,8 @@ export type SynthInstrumentType =
 	| 'metal'
 	| 'mono'
 //	| 'noise'
-	| 'pluck'
-	| 'poly'
+//	| 'pluck'
+//	| 'poly'
 	;
 
 export type SynthInstrumentClasses =

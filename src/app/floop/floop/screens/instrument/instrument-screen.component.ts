@@ -7,6 +7,7 @@ import { CompOutDirective } from '../../../directives/comp-out.directive';
 import { FloopDeviceService } from '../../../services/floop-device.service';
 import { SynthService } from '../../../services/synth.service';
 import { SynthInstrument } from '../../../types/synth.types';
+import { EnvelopePage } from './envelope.page';
 import { InstrumentPage } from './instrument.page';
 import { OscillatorPage } from './oscillator.page';
 
@@ -59,8 +60,8 @@ export class InstrumentScreenComponent implements OnInit, OnChanges, AfterViewIn
 	public pages:FloopDisplayPage[] = [
 		{ id: 'instrument', label: 'inst', component: InstrumentPage },
 		{ id: 'oscillator', label: 'osc', component: OscillatorPage },
-		{ id: 'envelope', label: 'env' },
-		{ id: 'fx', label: 'fx' },
+		{ id: 'envelope', label: 'env', component: EnvelopePage },
+//		{ id: 'fx', label: 'fx' },
 		//		{id: 'mix', label: 'mix'},
 	];
 
