@@ -1,9 +1,26 @@
 @font-face {
 	font-family: Technicality1;
-	src: url(/assets/fonts/technicality1.ttf) format('truetype');
+	src: url(/assets/fonts/technicality/technicality1.woff2) format('woff2'),
+	url(/assets/fonts/technicality/technicality1.woff) format('woff'),
+	url(/assets/fonts/technicality/technicality1.ttf) format('truetype')
+;
 }
 
 @font-face {
 	font-family: Munro;
 	src: url(/assets/fonts/munro/MunroSmall-wPZw.ttf) format('truetype');
+}
+
+@font-face {
+	font-family: BestTenDot;
+	src: url('/assets/fonts/best10/BestTenDOT.woff2') format('woff2'),
+	url('/assets/fonts/best10/BestTenDOT.woff') format('woff'),
+	url('/assets/fonts/best10/BestTenDOT.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+.nihongo {
+	font-family: BestTenDot;
 }
