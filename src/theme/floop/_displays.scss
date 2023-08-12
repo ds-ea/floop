@@ -14,6 +14,9 @@
 	font-family: var(--flp-display-font);
 	--ion-font-family: var(--flp-display-font);
 
+	// adjust for font
+	text-indent: 2px;
+
 
 	+ .floop-display{
 		margin-block-start: var(--flp-display-gap);

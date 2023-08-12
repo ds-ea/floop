@@ -74,25 +74,25 @@ const oscOptionsMapper:Record<string | 'fallback', {
 				</div>
 
 				<label class="cell-1">frq</label>
-				<input-stepper class="cell-1"
+				<input-stepper class="cell-1 compact"
 							   [(ngModel)]="oscillatorOptions.frequency"
 							   (ngModelChange)="out()"
 				></input-stepper>
 
 				<label class="cell-1">det</label>
-				<input-stepper class="cell-1"
+				<input-stepper class="cell-1 compact"
 							   [(ngModel)]="oscillatorOptions.detune"
 							   (ngModelChange)="out()"
 				></input-stepper>
 
 				<label class="cell-1">phase</label>
-				<input-stepper class="cell-1"
+				<input-stepper class="cell-1 compact"
 							   [(ngModel)]="oscillatorOptions.phase"
 							   (ngModelChange)="out()"
 				></input-stepper>
 
 				<label class="cell-1">amp</label>
-				<input-stepper class="cell-1"
+				<input-stepper class="cell-1 compact"
 							   [(ngModel)]="options.volume"
 							   (ngModelChange)="out()"
 							   [increment]="1"
@@ -184,13 +184,16 @@ export class OscillatorPage implements FloopDisplayInstrumentPageComponent, OnIn
 
 
 	private _populateOptionsFromSynth(){
-		if( !this.instrument )
+		if( !this.instrument || !this.instrSynth)
 			return;
 
 		if( !this.instrument.options ){
 			this.instrument.options = {} as any;
 			this.options = this.instrument.options as any;
 		}
+
+		this.options.volume = this.instrSynth.volume.value;
+
 
 		if( !this.options!.oscillator ){
 			this.options!.oscillator = {} as any;
