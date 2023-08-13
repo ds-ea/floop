@@ -46,6 +46,10 @@
 		}
 	}
 
+	ion-card{
+		flex-shrink: 0;
+	}
+
 
 	hr {
 		background-color: var(--flp-ui-fg);

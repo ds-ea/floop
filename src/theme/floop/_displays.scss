@@ -89,6 +89,12 @@
 		.screen{
 			grid-template-rows:  repeat(2, 1fr);
 		}
+
+		&.no-track-nav{
+			.screen{
+				grid-template-rows:  repeat(1, 1fr);
+			}
+		}
 	}
 
 	&.sequencer{
@@ -187,7 +193,7 @@
 		}
 
 		&.hl{
-			border-color: #fff;
+			border-color: var(--flp-ui-fg);
 		}
 
 		&.blink{
@@ -195,6 +201,7 @@
 		}
 
 		button, .button{
+			color: var(--flp-ui-fg);
 
 			width: 100%;
 			height: 100%;

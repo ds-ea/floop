@@ -34,6 +34,7 @@
 		<section class="floop-display control" #controlDisplay
 				 [class.off]="!ready || !bootDone"
 				 [class.on]="ready && bootDone"
+				 [class.no-track-nav]="!showTrackNav"
 		>
 			<div class="retro"></div>
 			<div class="screen">

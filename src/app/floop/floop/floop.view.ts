@@ -86,10 +86,11 @@ export class FloopView implements OnInit, AfterViewInit{
 
 	private _inited = false;
 
-
 	private _fxOn:boolean = false;
 	private _fxFPS:number = 30;
 	private _fxLoop:number | undefined;
+
+	public showTrackNav = false;
 
 	constructor(
 		private cdr:ChangeDetectorRef,
@@ -253,24 +254,26 @@ export class FloopView implements OnInit, AfterViewInit{
 			this.controlButtons.push( btn );
 		}
 
-		// track pager
-		this.controlMatrix.track.pager = { type: 'control', row: 0, col: 0 };
-		this.controlButtons.push( this.controlMatrix.track.pager! );
+		if( this.showTrackNav ){
+			// track pager
+			this.controlMatrix.track.pager = { type: 'control', row: 0, col: 0 };
+			this.controlButtons.push( this.controlMatrix.track.pager! );
 
-		// track buttons
-		for( let col = 1 ; col < colCount - 1 ; col++ ){
-			let row = 0;
-			const btn:BtnData = {
-				type: 'track',
-				row, col,
-			};
-			this.controlMatrix.track.buttons[col] = btn;
-			this.controlButtons.push( btn );
+			// track buttons
+			for( let col = 1 ; col < colCount - 1 ; col++ ){
+				let row = 0;
+				const btn:BtnData = {
+					type: 'track',
+					row, col,
+				};
+				this.controlMatrix.track.buttons[col] = btn;
+				this.controlButtons.push( btn );
+			}
+
+			// track loop
+			this.controlMatrix.track.pager = { type: 'control', row: 0, col: 0, label: 'loop' };
+			this.controlButtons.push( this.controlMatrix.track.pager! );
 		}
-
-		// track loop
-		this.controlMatrix.track.pager = { type: 'control', row: 0, col: 0, label: 'loop' };
-		this.controlButtons.push( this.controlMatrix.track.pager! );
 
 
 
