@@ -1,3 +1,84 @@
+screen-button, .screen-button{
+	position: relative;
+
+	aspect-ratio: 1/1;
+
+	background-color: #888;
+	border: 2px solid var(--flp-display-bg);
+	border-radius: 4px;
+	opacity: .4;
+
+	overflow: hidden;
+
+	user-select: none!important;
+
+	transition:
+			background-color .2s ease-out,
+			opacity .2s ease-out,
+			border-color .3s ease-out
+;
+
+	&.control{
+		background-color: #4d4d4d;
+	}
+
+	&.fx{
+		background-color: #333;
+	}
+
+	&.on{
+		opacity: 1;
+	}
+
+
+	&.hl{
+		border-color: var(--flp-ui-fg);
+	}
+
+	&.selected{
+		background-color: var(--flp-ui-focus);
+	}
+
+	&.blink{
+		animation: blinkButton .3s forwards;
+	}
+
+	button, .button{
+		color: var(--flp-ui-fg);
+
+		width: 100%;
+		height: 100%;
+
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+
+		appearance: none;
+		background-color: transparent;
+
+	}
+
+	.overlay{
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		.txt{
+			font-size: 30px;
+		}
+
+		.lbl{
+			font-size: 10px;
+		}
+	}
+
+	.icon{
+		width: 60%;
+		height: 60%;
+	}
+}
+
 
 .floop-display {
 	position: relative;
@@ -107,6 +188,25 @@
 		.screen{
 			grid-template-rows:  repeat(6, 1fr);
 		}
+
+
+		&.well-fx{
+			screen-button.fx{
+				background-color: #100226;
+				border-radius: 20px;
+				transform: scale(-0.5);
+			}
+		}
+
+		&.well-step{
+			screen-button.fx{
+				background-color: #333 !important;
+
+				&.on{
+					background-color: var(--flp-ui-focus) !important;
+				}
+			}
+		}
 	}
 
 
@@ -156,72 +256,6 @@
 
 		padding: var(--flp-display-panel-gap);
 
-	}
-
-
-
-	screen-button, .screen-button{
-		position: relative;
-
-		aspect-ratio: 1/1;
-
-		background-color: #888;
-		border: 2px solid var(--flp-display-bg);
-		border-radius: 4px;
-		opacity: .4;
-
-		overflow: hidden;
-
-		user-select: none!important;
-
-		transition:
-			background-color .2s ease-out,
-			opacity .2s ease-out,
-			border-color .3s ease-out
-			;
-
-
-		&.fx{
-			background-color: #100226;
-			border-radius: 20px;
-			transform: scale(-0.5);
-		}
-		&.control{
-			background-color: #4d4d4d;
-		}
-
-		&.on{
-			opacity: 1;
-		}
-
-		&.hl{
-			border-color: var(--flp-ui-fg);
-		}
-
-		&.blink{
-			animation: blinkButton .3s forwards;
-		}
-
-		button, .button{
-			color: var(--flp-ui-fg);
-
-			width: 100%;
-			height: 100%;
-
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-
-			appearance: none;
-			background-color: transparent;
-
-		}
-
-		.icon{
-			width: 60%;
-			height: 60%;
-		}
 	}
 
 }

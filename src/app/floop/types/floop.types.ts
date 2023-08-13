@@ -11,11 +11,15 @@ export type BtnData = {
 
 	on?:boolean;
 	hl?:boolean;
+	selected?:boolean;
 	blink?:boolean;
 
 	icon?:string;
 	label?:string;
 	overlay?:string;
+	overlayLabel?:string;
+	overlayData?:unknown;
+	overlayAction?:() => void;
 
 	action?:CallableFunction;
 };
@@ -31,3 +35,28 @@ export type FloopSettings = {
 export type FloopMemory = {
 	lastInstrumentPage?:string;
 };
+
+
+export type FloopFXImpulse = {
+	state:'spawn' | 'alive' | 'dead';
+
+	velocity?:number;
+	juice:number;
+
+	// position
+	row:number;
+	col:number;
+
+	// vector
+	_x?:-1 | 1;
+	_y?:-1 | 1;
+
+	/** counter until advancing to next cell */
+	_res?:number;
+}
+
+
+export type FloopStepEditData = {
+	note:string;
+	octave:number;
+}

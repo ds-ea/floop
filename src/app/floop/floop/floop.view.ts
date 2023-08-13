@@ -1,4 +1,3 @@
-import { state } from '@angular/animations';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChildren } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Device } from '@capacitor/device';
@@ -6,35 +5,15 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Animation, StatusBar } from '@capacitor/status-bar';
 import { AnimationController } from '@ionic/angular';
 import { Color } from 'chart.js';
-import { settings } from 'ionicons/icons';
+
+import { mix } from 'color2k';
 import { debounce, timer } from 'rxjs';
 import { PlaybackState } from 'tone';
 import { FloopDeviceService } from '../services/floop-device.service';
 import { SynthService } from '../services/synth.service';
-import { BtnData, ControlType } from '../types/floop.types';
-import { SynthSequence, SynthTrigger } from '../types/synth.types';
-
-import { lighten, mix } from 'color2k';
+import { BtnData, ControlType, FloopFXImpulse, FloopStepEditData } from '../types/floop.types';
+import { SynthSequence, SynthSequenceEvent, SynthTrigger } from '../types/synth.types';
 import { ScreenButtonComponent } from './components/screen-button.component';
-
-
-type FloopFXImpulse = {
-	state:'spawn' | 'alive' | 'dead';
-
-	velocity?:number;
-	juice:number;
-
-	// position
-	row:number;
-	col:number;
-
-	// vector
-	_x?:-1 | 1;
-	_y?:-1 | 1;
-
-	/** counter until advancing to next cell */
-	_res?:number;
-}
 
 @Component( {
 	selector: 'floop',
@@ -58,8 +37,10 @@ export class FloopView implements OnInit, AfterViewInit{
 	public sequencerButtons:BtnData[] = [];
 	public sequencerMatrix:{ [row:number]:{ [col:number]:BtnData } } = {};
 	public stepMatrix:{ btn:BtnData }[] = [];
+	public fxButtons:BtnData[] = [];
 	public fxMatrix:{
 		el:HTMLElement;
+		btn:BtnData;
 		colors?:Color[];
 		/** incoming value 0 - 1*/
 		in:number;
@@ -75,6 +56,7 @@ export class FloopView implements OnInit, AfterViewInit{
 
 	public prevStep:number | undefined;
 	public currentStep:number = -1;
+	public selectedStep:number|undefined;
 
 	public currentInstrument!:number;
 	public currentSequence!:number;
@@ -94,7 +76,7 @@ export class FloopView implements OnInit, AfterViewInit{
 
 	public showTrackNav = false;
 
-	public sequencerWellBehavior:'fx' | 'tone' = 'fx';
+	public sequencerWellBehavior:'fx' | 'step' = 'fx';
 
 	constructor(
 		private cdr:ChangeDetectorRef,
@@ -139,11 +121,11 @@ export class FloopView implements OnInit, AfterViewInit{
 
 	public ngAfterViewInit():void{
 		// add fx buttons into array for direct dom manipulation
-		const fxButtons = this.screenButtons?.filter(
+		const fxFieldComponents = this.screenButtons?.filter(
 			btn => btn.btn && btn.btn.type === 'fx'
 		) || [];
 
-		for( const fxButton of fxButtons ){
+		for( const fxButton of fxFieldComponents ){
 			const btn = fxButton.btn!;
 			const fxRow = btn.row -1;
 			const fxCol = btn.col -1;
@@ -153,9 +135,11 @@ export class FloopView implements OnInit, AfterViewInit{
 
 			if( !this.fxMatrix[fxRow] )
 				this.fxMatrix[fxRow] = [];
+
 			this.fxMatrix[fxRow][fxCol] = {
 				v: 0,
 				in: 0,
+				btn,
 				el: fxButton.el.nativeElement,
 				colors: [],
 				impulses: [],
@@ -240,7 +224,9 @@ export class FloopView implements OnInit, AfterViewInit{
 
 
 	public playPause(){
-		this.synth.playPause();
+		const state = this.synth.playPause();
+		if( state === 'started' )
+			this.deselectStep();
 	}
 
 
@@ -301,7 +287,6 @@ export class FloopView implements OnInit, AfterViewInit{
 
 				this.sequencerMatrix[row][col] = btn;
 				this.sequencerButtons.push( btn );
-
 			}
 		}
 
@@ -320,8 +305,10 @@ export class FloopView implements OnInit, AfterViewInit{
 			this.sequencerMatrix[row][0].type = 'trigger';
 			this.sequencerMatrix[row][colCount - 1].type = 'trigger';
 
-			for( let col = 1 ; col < colCount - 1 ; col++ )
+			for( let col = 1 ; col < colCount - 1 ; col++ ){
 				this.sequencerMatrix[row][col].type = 'fx';
+				this.fxButtons.push( this.sequencerMatrix[row][col] );
+			}
 		}
 
 		// assign steps
@@ -410,7 +397,14 @@ export class FloopView implements OnInit, AfterViewInit{
 
 
 	public tapButton( btn:BtnData, event?:TouchEvent | MouseEvent | any ){
-		console.log('::tap', btn);
+
+
+		if( btn.overlayAction ){
+			Haptics.impact( { style: ImpactStyle.Medium } );
+			btn.overlayAction();
+			return;
+		}
+
 		if( btn.action ){
 			Haptics.impact( { style: ImpactStyle.Medium } );
 			btn.action();
@@ -431,7 +425,14 @@ export class FloopView implements OnInit, AfterViewInit{
 	}
 
 	public longPressButton( btn:BtnData ){
-		console.log('::longrpess', btn);
+		if( btn.type === 'trigger' ){
+			if( this.sequencerWellBehavior === 'step' && this.selectedStep === btn.step ){
+				this.deselectStep();
+				this.sequencerWellBehavior = 'fx';
+			}else{
+				this.editStep( btn.step! );
+			}
+		}
 	}
 
 
@@ -445,13 +446,12 @@ export class FloopView implements OnInit, AfterViewInit{
 	}
 
 	private _tapInstrument( btn:BtnData ){
-		// if instrument is already selected, trigger sound and switch to appropriate view
+		if( this.dynamicContent !== 'instrument' )
+			this.dynamicContent = 'instrument';
+
+		// if instrument is already selected, trigger sound
 		if( btn.instrument === this.currentInstrument ){
 			this.synth.triggerInstrument( btn.instrument );
-
-			if( this.dynamicContent !== 'instrument' )
-				this.dynamicContent = 'instrument';
-
 			return;
 		}
 
@@ -502,6 +502,17 @@ export class FloopView implements OnInit, AfterViewInit{
 		const event = this.synth.toggleStep( this.currentInstrument, this.currentSequence, step );
 
 		this.stepMatrix[step].btn.on = !!event;
+
+
+
+		if( !this.stepMatrix[step].btn.on && this.sequencerWellBehavior === 'step' && step === this.selectedStep ){
+			this.deselectStep();
+
+		}
+
+		if( event && this.synth.stateChange.value !== 'started' )
+			this.editStep( step );
+
 	}
 
 
@@ -805,8 +816,10 @@ export class FloopView implements OnInit, AfterViewInit{
 				if( btn.v ){
 					const color = mix( fxColorLow, fxColorHigh, FloopView.easeInSine( btn.v ) );
 					this.renderer.setStyle( btn.el, 'background-color', color );
+					this.renderer.setStyle( btn.el, 'border-color', color );
 				}else{
 					this.renderer.removeStyle( btn.el, 'background-color' );
+					this.renderer.removeStyle( btn.el, 'border-color' );
 				}
 
 			}
@@ -818,5 +831,117 @@ export class FloopView implements OnInit, AfterViewInit{
 	}
 
 
+
+	public editStep( step:number ){
+		if( this.selectedStep != null )
+			this.stepMatrix[this.selectedStep].btn.selected = false;
+		this.stepMatrix[step].btn.selected = true;
+
+		this.sequencerWellBehavior = 'step';
+		this.selectedStep = step;
+
+		this.cdr.markForCheck();
+
+		const event = this.synth.getSequenceEvent( this.currentInstrument, this.currentSequence, this.selectedStep );
+		this._applyStepEditingData(event);
+	}
+
+	private _applyStepEditingData( event?:SynthSequenceEvent ){
+		const trigger:SynthTrigger = event?.trigger || {};
+
+		const originalNoteRaw = trigger.note?.toString() || this.synth.defaultTriggerNote.toString();
+		const originalNote = originalNoteRaw.slice(0,-1);
+		const originalOctave = Number( originalNoteRaw.slice(-1) ) || 4;
+		const originalDuration = trigger.duration || this.synth.defaultTriggerDuration;
+
+		const unassignedButtons = [...this.fxButtons];
+
+
+		let currentNote = originalNote;
+		let currentOctave = 4;
+		let currentDuration = originalDuration.toString();
+
+
+		// assign field data for selecting notes
+		const availableNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+		let currentNoteButton:BtnData|undefined;
+		for( const note of availableNotes ){
+			const btn = unassignedButtons.shift();
+			if( !btn ){
+				console.warn('insufficient fields available for assigning note selection');
+				break;
+			}
+
+			btn.on = note === originalNote;
+			if( btn.on )
+				currentNoteButton = btn;
+
+			btn.overlay = note;
+			btn.overlayData = {note, octave: currentOctave} as FloopStepEditData;
+
+			btn.overlayAction = ()=>{
+				const data = btn.overlayData as FloopStepEditData;
+				trigger.note = data.note + data.octave;
+				currentNote = data.note;
+
+				if( currentNoteButton )
+					currentNoteButton.on = false;
+
+				btn.on = true;
+				currentNoteButton = btn;
+
+				this.synth.setStep(this.currentInstrument, this.currentSequence, this.selectedStep!, trigger);
+				this.cdr.markForCheck();
+			};
+		}
+
+		// assign buttons for changing note duration
+		const durationButton = unassignedButtons.shift();
+		if( !durationButton ){
+			console.warn('insufficient fields available for assigning duration changer');
+		}else{
+			const availableDurations = [ '1m', '1n', '1n.', '2n', '2n.', '2t', '4n', '4n.', '4t', '8n', '8n.', '8t', '16n', '16n.', '16t', '32n', '32n.', '32t' ];
+			durationButton.overlay = originalDuration.toString();
+			durationButton.overlayLabel = 'duration';
+			durationButton.overlayAction = ()=>{
+				let nextDurationPos = availableDurations.findIndex( d => d === currentDuration ) +1;
+				if( nextDurationPos > availableDurations.length -1 )
+					nextDurationPos = 0;
+
+				trigger.duration = availableDurations[ nextDurationPos ];
+				currentDuration = availableDurations[ nextDurationPos ];
+
+				durationButton.overlay = currentDuration;
+				this.synth.setStep(this.currentInstrument, this.currentSequence, this.selectedStep!, trigger);
+				this.cdr.markForCheck();
+			};
+		}
+
+
+		this.cdr.markForCheck();
+	}
+
+
+	public deselectStep(){
+		if( this.selectedStep != null )
+			this.stepMatrix[this.selectedStep].btn.selected = false;
+
+		this.selectedStep = undefined;
+		this._clearWellOverlayData();
+
+		this.sequencerWellBehavior = 'fx';
+
+		this.cdr.markForCheck();
+	}
+
+	private _clearWellOverlayData(){
+		for( const button of this.fxButtons ){
+			delete button.overlay;
+			delete button.overlayData;
+			delete button.overlayAction;
+		}
+
+		this.cdr.markForCheck();
+	}
 
 }

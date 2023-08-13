@@ -51,6 +51,7 @@ export class SynthService{
 
 	public stepDuration:Tone.Unit.Time = '4n';
 	public defaultTriggerDuration:Tone.Unit.Time = '8n';
+	public defaultTriggerNote:Tone.Unit.Note = 'C4';
 
 	/**
 	 * list of events by step and sequence, mainly used for quick playback related things
@@ -101,7 +102,7 @@ export class SynthService{
 
 			Tone.Transport.bpm.value = 200;
 
-			this._updateTone();
+			this._updatePlayback();
 
 			Tone.Transport.loop = true;
 			Tone.Transport.loopStart = '0m';
@@ -120,6 +121,8 @@ export class SynthService{
 			this.pause();
 		else
 			this.play();
+
+		return Tone.Transport.state;
 	}
 
 	public play(){
@@ -272,9 +275,13 @@ export class SynthService{
 
 		// add to matrix (
 		this.playbackMatrix[sequence][step].push( { instrument, event: { trigger } } );
-		this._updateTone();
+		this._updatePlayback();
 
 		return instrumentSequence.steps[step];
+	}
+
+	public getSequenceEvent( instrument:number, sequence:number, step:number ):SynthSequenceEvent|undefined{
+		return this.song.tracks[instrument]?.sequences[sequence]?.steps[step];
 	}
 
 	/** removes a step  */
@@ -285,7 +292,7 @@ export class SynthService{
 
 		// remove from matrix
 		this._removeInstrumentFromMatrixStep( instrument, sequence, step );
-		this._updateTone();
+		this._updatePlayback();
 	}
 
 
@@ -305,7 +312,7 @@ export class SynthService{
 
 	private _triggerSynth( synth:Instrument<any>, trigger:SynthTrigger, sequence?:number, step?:number, time?:Tone.Unit.Time ){
 		synth.triggerAttackRelease(
-			trigger.note || 'C4',
+			trigger.note || this.defaultTriggerNote,
 			trigger.duration || this.defaultTriggerDuration,
 			time,
 		);
@@ -313,7 +320,7 @@ export class SynthService{
 
 
 	/** updates events in tone playback based on tracks in song */
-	private _updateTone(){
+	private _updatePlayback(){
 		const wasPlaying = Tone.Transport.state === 'started';
 		if( wasPlaying )
 			Tone.Transport.pause();
@@ -576,7 +583,7 @@ export class SynthService{
 		synth.connect( this.master );
 
 		this._updateMatrix( instrumentNum );
-		this._updateTone();
+		this._updatePlayback();
 
 		this.synths$.next( this.synths );
 
@@ -588,7 +595,7 @@ export class SynthService{
 			track.sequences = [];
 		}
 		this._updateMatrix();
-		this._updateTone();
+		this._updatePlayback();
 	}
 
 	public async saveSong(){
@@ -620,7 +627,7 @@ export class SynthService{
 		this.song = data;
 		this._recreateInstruments();
 		this._updateMatrix();
-		this._updateTone();
+		this._updatePlayback();
 	}
 
 	private _recreateInstruments(){

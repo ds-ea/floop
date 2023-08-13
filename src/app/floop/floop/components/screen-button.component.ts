@@ -4,12 +4,12 @@ import { BtnData } from '../../types/floop.types';
 
 @Component( {
 	selector: 'screen-button',
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<button *ngIf="btn">
-			<span *ngIf="btn.overlay"
-				  class="overlay"
-			>{{btn.overlay}}</span>
+			<div *ngIf="btn.overlay" class="overlay">
+				<span class="txt">{{btn.overlay}}</span>
+				<span class="lbl" *ngIf="btn.overlayLabel">{{btn.overlayLabel}}</span>
+			</div>
 
 			<ion-icon *ngIf="btn.icon"
 					  class="icon"
@@ -35,6 +35,7 @@ export class ScreenButtonComponent implements AfterViewInit{
 			this.btn.type,
 			this.btn.hl ? 'hl' : '',
 			this.btn.on ? 'on' : 'off',
+			this.btn.selected ? 'selected' : '',
 		];
 	};
 
