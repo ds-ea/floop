@@ -23,6 +23,7 @@ export type BtnData = {
 export type FloopSettings = {
 	quickBoot?:boolean;
 	loadSongAfterBoot?:boolean;
+	disableFX?:boolean;
 	deviceVolume?:number;
 }
 

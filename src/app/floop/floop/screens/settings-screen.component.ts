@@ -37,6 +37,13 @@ import { FloopSettings } from '../../types/floop.types';
 				>Restore saved song on boot
 				</ion-checkbox>
 			</ion-item>
+			<ion-item>
+				<ion-checkbox [(ngModel)]="settings.disableFX"
+							  (ngModelChange)="settingsChanged()"
+							  labelPlacement="start"
+				>disable playback FX
+				</ion-checkbox>
+			</ion-item>
 
 			<ion-item>
 				<ion-range aria-label="Volume"

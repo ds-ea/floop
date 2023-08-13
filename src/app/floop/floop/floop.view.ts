@@ -14,14 +14,14 @@ import { SynthService } from '../services/synth.service';
 import { BtnData, ControlType } from '../types/floop.types';
 import { SynthSequence, SynthTrigger } from '../types/synth.types';
 
-import { lighten } from 'color2k';
+import { lighten, mix } from 'color2k';
 
 
 type FloopFXImpulse = {
 	state:'spawn' | 'alive' | 'dead';
 
 	velocity?:number;
-	weight:number;
+	juice:number;
 
 	// position
 	row:number;
@@ -501,10 +501,12 @@ export class FloopView implements OnInit, AfterViewInit{
 		const btn = this.stepMatrix[this.currentStep].btn;
 		btn.hl = true;
 
-		const colRowLimit = this.fxMatrix.length+1;
-		const fxRow = btn.row === 0 ? 1 : btn.row === colRowLimit ? colRowLimit-1 : btn.row ;
-		const fxCol = btn.col === 0 ? 1 : btn.col === colRowLimit ? colRowLimit-1 : btn.col ;
-		this._tapFX({row: fxRow, col: fxCol});
+		if( btn.on){
+			const colRowLimit = this.fxMatrix.length+1;
+			const fxRow = btn.row === 0 ? 1 : btn.row === colRowLimit ? colRowLimit-1 : btn.row ;
+			const fxCol = btn.col === 0 ? 1 : btn.col === colRowLimit ? colRowLimit-1 : btn.col ;
+			this._tapFX({row: fxRow, col: fxCol});
+		}
 
 		this.prevStep = this.currentStep;
 		this.cdr.detectChanges();
@@ -536,9 +538,9 @@ export class FloopView implements OnInit, AfterViewInit{
 		const fxRow = btn.row - 1;
 		const fxCol = btn.col - 1;
 		const fxBtn = this.fxMatrix[fxRow][fxCol];
-		//		fxBtn.in = Math.min( fxBtn.in + .8, 1 );
+
 		this._fxMatrixImpulses.push( {
-			weight: .8,
+			juice: .8,
 			state: 'spawn',
 			row: fxRow,
 			col: fxCol,
@@ -548,6 +550,8 @@ export class FloopView implements OnInit, AfterViewInit{
 	}
 
 	private animateFX(){
+		if( this.floopDevice.settings.disableFX )
+			return;
 		this._startFX();
 	}
 
@@ -571,6 +575,10 @@ export class FloopView implements OnInit, AfterViewInit{
 		this._updateFX();
 		this._drawFX();
 
+		// in case the setting was changed while animations are running
+		if( this.floopDevice.settings.disableFX )
+			return;
+
 		// schedule next tick
 		this._fxLoop = setTimeout( this._animateFX.bind( this ), 1000 / this._fxFPS );
 	}
@@ -585,7 +593,7 @@ export class FloopView implements OnInit, AfterViewInit{
 	private _spawnImpulse( row:number, col:number, direction:'up'|'down'|'left'|'right', data:Partial<FloopFXImpulse> = {}):FloopFXImpulse{
 		const impulse:FloopFXImpulse = {
 			state: 'alive',
-			weight: 1,
+			juice: 1,
 			...data,
 			row, col,
 		};
@@ -615,12 +623,17 @@ export class FloopView implements OnInit, AfterViewInit{
 		if( impulse._res == null )
 			impulse._res = 0;
 
+		const stationary = !!impulse._x && !!impulse._y;
+
+
+
 		let moved= impulse._res === 0;
 
-		// update resident timer and move if necessary
+		// update resident timer
 		impulse._res++;
 
-		if( impulse._res > (impulse.velocity ?? defaultVelocity) ){
+		// move is necessary
+		if( !stationary && impulse._res > (impulse.velocity ?? defaultVelocity) ){
 			// remove from old
 			this.fxMatrix[impulse.row][impulse.col].impulses =
 				this.fxMatrix[impulse.row][impulse.col].impulses
@@ -639,20 +652,27 @@ export class FloopView implements OnInit, AfterViewInit{
 
 			// move to next cell
 			this.fxMatrix[ impulse.row ][ impulse.col ].impulses.push( impulse );
-			impulse.weight -= falloff;
+			impulse.juice -= falloff;
 
 			moved = true;
 
-		}else{
-			// remain in current one
 		}
 
-		if( moved ){
+
+
+		if( moved || stationary ){
 			// apply effects
 			const cell = this.fxMatrix[ impulse.row ][ impulse.col ];
-			cell.in += impulse.weight;
+			cell.in += impulse.juice;
+
+			// stationary impulses leave no trail, so they just spend everything in one place
+			if( stationary )
+				impulse.juice = 0;
 		}
 
+		// if impulses run out of juice, they die
+		if( impulse.juice <= 0 )
+			impulse.state = 'dead';
 
 		return impulse;
 	}
@@ -663,12 +683,30 @@ export class FloopView implements OnInit, AfterViewInit{
 		const topRow = rows - 1;
 		const lastCol = cols - 1;
 
-		const lightUpSpeed = 40 / this._fxFPS;
-		const decaySpeed = 2 / this._fxFPS;
-		const falloff = .3;
+		const lightUpSpeed = 5 / this._fxFPS;
+		const decaySpeed = .3 / this._fxFPS;
+		const falloff = .25;
+
+
+		// cleanup in case
+		if( this.floopDevice.settings.disableFX ){
+			this._fxMatrixImpulses = [];
+			for( let row = 0 ; row < rows ; row++ ){
+				for( let col = 0 ; col < cols ; col++ ){
+					const btn = this.fxMatrix[row][col];
+					btn.in = 0;
+					btn.v = 0;
+					btn.impulses = [];
+				}
+			}
+
+			return;
+		}
+
+
+
 
 		const matrix = this.fxMatrix;
-
 		const unprocessedImpulses = [ ...this._fxMatrixImpulses ];
 		// propagate impulses
 		while( unprocessedImpulses.length ){
@@ -680,17 +718,17 @@ export class FloopView implements OnInit, AfterViewInit{
 				// TODO: highlight spawn cell
 				const spawned:FloopFXImpulse[] = [];
 
-				const weight = impulse.weight - impulse.weight * falloff;
+				const juice = impulse.juice - impulse.juice * falloff;
 
 				if( impulse.row < topRow ) // spawn a pulse going up
-					spawned.push(this._spawnImpulse(impulse.row+1, impulse.col, 'up', {weight}));
+					spawned.push(this._spawnImpulse(impulse.row+1, impulse.col, 'up', {juice}));
 				if( impulse.row > 0 ) // spawn a pulse going down
-					spawned.push(this._spawnImpulse(impulse.row-1, impulse.col, 'down', {weight}));
+					spawned.push(this._spawnImpulse(impulse.row-1, impulse.col, 'down', {juice}));
 
 				if( impulse.col > 0 ) // spawn a pulse going left
-					spawned.push(this._spawnImpulse(impulse.row, impulse.col-1, 'left', {weight}));
+					spawned.push(this._spawnImpulse(impulse.row, impulse.col-1, 'left', {juice}));
 				if( impulse.col < lastCol ) // spawn a pulse going right
-					spawned.push(this._spawnImpulse(impulse.row, impulse.col+1, 'right', {weight}));
+					spawned.push(this._spawnImpulse(impulse.row, impulse.col+1, 'right', {juice}));
 
 
 				for( const newImpulse of spawned ){
@@ -699,8 +737,9 @@ export class FloopView implements OnInit, AfterViewInit{
 					unprocessedImpulses.push(newImpulse);
 				}
 
-				impulse.state = 'dead';
-				continue;
+				// change to alive, so it decays by itself
+				impulse.state = 'alive';
+				impulse.juice = .8;
 			}
 
 			// process pulse
@@ -738,6 +777,10 @@ export class FloopView implements OnInit, AfterViewInit{
 	}
 
 	private _drawFX(){
+//		const fxColorLow = '#100226';
+		const fxColorLow = '#270060';
+		const fxColorHigh = '#ff0038';
+
 		const rows = this.fxMatrix.length;
 		const cols = this.fxMatrix[0].length;
 
@@ -746,7 +789,7 @@ export class FloopView implements OnInit, AfterViewInit{
 				const btn = this.fxMatrix[row][col];
 
 				if( btn.v ){
-					const color = lighten( '#000', btn.v );
+					const color = mix( fxColorLow, fxColorHigh, FloopView.easeInSine(btn.v) );
 					this.renderer.setStyle( btn.el, 'background-color', color );
 				}else{
 					this.renderer.removeStyle( btn.el, 'background-color' );
@@ -754,6 +797,10 @@ export class FloopView implements OnInit, AfterViewInit{
 
 			}
 		}
+	}
+
+	private static easeInSine(x: number): number {
+		return 1 - Math.cos((x * Math.PI) / 2);
 	}
 
 
