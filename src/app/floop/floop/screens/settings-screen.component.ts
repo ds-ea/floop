@@ -30,6 +30,13 @@ import { FloopSettings } from '../../types/floop.types';
 				>Quick Boot (skips boot animation)
 				</ion-checkbox>
 			</ion-item>
+			<ion-item>
+				<ion-checkbox [(ngModel)]="settings.loadSongAfterBoot"
+							  (ngModelChange)="settingsChanged()"
+							  labelPlacement="start"
+				>Restore saved song on boot
+				</ion-checkbox>
+			</ion-item>
 
 			<ion-item>
 				<ion-range aria-label="Volume"

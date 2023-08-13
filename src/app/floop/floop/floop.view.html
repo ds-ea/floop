@@ -58,7 +58,10 @@
 			<div class="screen">
 				<div *ngFor="let btn of sequencerButtons ; trackBy: trackButtonNumber"
 					 [ngClass]="['btn', btn.type, btn.hl ? 'hl' : '', btn.on ? 'on' : 'off' ]"
+					 data-btn
 					 [attr.data-btn-num]="btn.num"
+					 [attr.data-row]="btn.row-1"
+					 [attr.data-col]="btn.col-1"
 				>
 					<button (click)="tapButton(btn, $event)">
 						<ion-icon *ngIf="btn.icon"
@@ -66,7 +69,6 @@
 								  [name]="btn.icon"
 
 						></ion-icon>
-
 						<ng-container *ngIf="!btn.icon">
 							<!--{{btn.step != null ?  (+btn.step+1) : ''}}
 							<br />-->

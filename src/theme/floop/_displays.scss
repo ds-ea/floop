@@ -58,6 +58,7 @@
 
 			> *{
 				flex-grow: 1;
+				max-width: 100%;
 			}
 		}
 	}
@@ -172,7 +173,7 @@
 			;
 
 
-		&.viz{
+		&.fx{
 			background-color: #3a3a3a;
 		}
 		&.control{

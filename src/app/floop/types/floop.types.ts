@@ -1,6 +1,6 @@
 export type ControlType = 'instrument' | 'track';
 export type BtnData = {
-	type?:'control' | 'trigger' | 'viz' | 'instrument' | 'track' | undefined;
+	type?:'control' | 'trigger' | 'fx' | 'instrument' | 'track' | undefined;
 
 	num?:number;
 	row:number;
@@ -22,6 +22,7 @@ export type BtnData = {
 
 export type FloopSettings = {
 	quickBoot?:boolean;
+	loadSongAfterBoot?:boolean;
 	deviceVolume?:number;
 }
 
