@@ -39,12 +39,10 @@
 			<div class="retro"></div>
 			<div class="screen">
 				<div *ngFor="let btn of controlButtons"
-					 [ngClass]="['btn', btn.type, btn.on ? 'on' : 'off' ]"
+					 [ngClass]="['screen-button btn', btn.type, btn.on ? 'on' : 'off' ]"
 					 [class.blink]="btn.blink"
 				>
-					<button
-							(click)="tapButton(btn, $event)"
-					>
+					<button (click)="tapButton(btn, $event)" >
 						{{btn.label ?? ''}}
 					</button>
 				</div>
@@ -52,31 +50,19 @@
 		</section>
 
 		<section class="floop-display sequencer" #sequencerDisplay
-				 [class.off]="!ready || !bootDone"
-				 [class.on]="ready && bootDone"
+				 [ngClass]="[
+				 	ready && bootDone ? 'on': 'off',
+				 	sequencerWellBehavior === 'fx' ? 'well-fx' : 'well-tone'
+				 ]"
 		>
 			<div class="retro"></div>
 			<div class="screen">
-				<div *ngFor="let btn of sequencerButtons ; trackBy: trackButtonNumber"
-					 [ngClass]="['btn', btn.type, btn.hl ? 'hl' : '', btn.on ? 'on' : 'off' ]"
-					 data-btn
-					 [attr.data-btn-num]="btn.num"
-					 [attr.data-row]="btn.row-1"
-					 [attr.data-col]="btn.col-1"
-				>
-					<button (click)="tapButton(btn, $event)">
-						<ion-icon *ngIf="btn.icon"
-								  class="icon"
-								  [name]="btn.icon"
-
-						></ion-icon>
-						<ng-container *ngIf="!btn.icon">
-							<!--{{btn.step != null ?  (+btn.step+1) : ''}}
-							<br />-->
-							{{btn.label ?? ''}}
-						</ng-container>
-					</button>
-				</div>
+				<screen-button
+						*ngFor="let btn of sequencerButtons ; trackBy: trackButtonNumber"
+						[btn]="btn"
+						(tap)="tapButton(btn)"
+						(longPress)="longPressButton(btn)"
+				></screen-button>
 			</div>
 		</section>
 

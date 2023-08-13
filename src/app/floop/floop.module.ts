@@ -5,6 +5,7 @@ import { ɵEmptyOutletComponent } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 import { CompOutDirective } from './directives/comp-out.directive';
 import { InputStepperComponent } from './floop/components/input-stepper.component';
+import { ScreenButtonComponent } from './floop/components/screen-button.component';
 import { BootScreenComponent } from './floop/screens/boot-screen.component';
 import { EnvelopePage } from './floop/screens/instrument/envelope.page';
 import { InstrumentScreenComponent } from './floop/screens/instrument/instrument-screen.component';
@@ -29,6 +30,7 @@ import { SynthService } from './services/synth.service';
 	declarations: [
 		CompOutDirective,
 		InputStepperComponent,
+		ScreenButtonComponent,
 
 		FloopView,
 

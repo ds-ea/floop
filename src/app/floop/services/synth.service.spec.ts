@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { SynthService } from './synth.service';
 
-describe('SyntService', () => {
+describe('SynthService', () => {
   let service: SynthService;
 
   beforeEach(() => {

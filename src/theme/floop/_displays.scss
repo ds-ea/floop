@@ -160,7 +160,7 @@
 
 
 
-	.btn{
+	screen-button, .screen-button{
 		position: relative;
 
 		aspect-ratio: 1/1;
@@ -171,6 +171,8 @@
 		opacity: .4;
 
 		overflow: hidden;
+
+		user-select: none!important;
 
 		transition:
 			background-color .2s ease-out,

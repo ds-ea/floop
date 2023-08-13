@@ -13,8 +13,9 @@ export type BtnData = {
 	hl?:boolean;
 	blink?:boolean;
 
-	label?:string;
 	icon?:string;
+	label?:string;
+	overlay?:string;
 
 	action?:CallableFunction;
 };
